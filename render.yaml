@@ -2,8 +2,12 @@ services:
   - type: web
     name: webbingo
     env: node
-    buildCommand: cd server && npm install
-    startCommand: cd server && npm start
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
-        value: production 
+        value: production
+      - key: PORT
+        value: 3000
+    healthCheckPath: / 
