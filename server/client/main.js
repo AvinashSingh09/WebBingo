@@ -71,16 +71,19 @@
   }
 
   function showCurrentNumber(number) {
-    currentNumberEl.textContent = number;
+    // Reset the animation
     currentNumberEl.classList.remove('active');
+    currentNumberEl.style.animation = 'none';
     void currentNumberEl.offsetWidth; // Force reflow
+    
+    currentNumberEl.textContent = number;
     currentNumberEl.classList.add('active');
     numberLabelEl.textContent = `Called: ${number}`;
-    const header = document.querySelector('.card-header');
-    if(header){
-      header.style.filter = 'drop-shadow(0 0 12px rgba(91,124,255,.4))';
-      setTimeout(()=> header.style.filter = '', 350);
-    }
+    
+    // Add a shake effect to the label
+    numberLabelEl.style.animation = 'none';
+    void numberLabelEl.offsetWidth;
+    numberLabelEl.style.animation = 'labelPop 0.6s ease';
   }
 
   function addPreviousNumber(number) {
@@ -88,6 +91,11 @@
     chip.className = 'number-chip';
     chip.textContent = number;
     previousNumbersEl.prepend(chip);
+    
+    // Add animation with slight delay
+    setTimeout(() => {
+      chip.classList.add('animate-in');
+    }, 50);
   }
 
   function updatePreviousNumbers(calledNumbers) {
@@ -196,8 +204,6 @@
           const cellEl = boardEl.children[idx];
           if(cellEl && !cellEl.classList.contains('marked')){
             cellEl.classList.add('marked');
-            cellEl.classList.add('flash');
-            setTimeout(()=> cellEl.classList.remove('flash'), 450);
             marks.add(idx);
           }
         }
