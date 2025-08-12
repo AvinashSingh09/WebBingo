@@ -14,7 +14,7 @@
     .row{display:grid;grid-template-columns:1fr;gap:20px}
     input[type="text"]{width:100%;padding:16px 14px;background:#121525;color:#e9ecf1;border:1px solid rgba(255,255,255,.1);
       border-radius:10px;outline:none; font-size: 16px; text-align: center;}
-         .join-section{display:flex;flex-direction:column;align-items:center;}
+    
     .option-btn{appearance:none;border:0;border-radius:16px;padding:24px 32px;background:linear-gradient(180deg,#4f78ff,#3658ff);
       color:#fff;font-weight:700;cursor:pointer;box-shadow:0 12px 24px rgba(0,0,0,.3);transition:transform .1s ease;
       display:flex;flex-direction:column;align-items:center;gap:8px;min-width:140px;}
@@ -30,7 +30,7 @@
       color:#fff;font-weight:700;cursor:pointer;box-shadow:0 8px 14px rgba(0,0,0,.25);transition:transform .06s ease}
     button:hover{transform:translateY(-1px);}
     .ghost{background:#253058;color:#cfe0ff;border:1px solid rgba(255,255,255,.18)}
-         @media (max-width:600px){.option-btn{min-width:200px;}}
+         @media (max-width:600px){.game-options{flex-direction:column;align-items:center;} .option-btn{min-width:200px;}}
   </style>
 </head>
 <body>
@@ -45,31 +45,29 @@
           <input id="name" type="text" placeholder="Enter your name..." maxlength="24" />
         </label>
 
-        <div class="join-section" style="margin: 30px 0;">
-          <button id="joinToggle" class="option-btn join-btn" style="margin: 0 auto; display: flex;">
+        <div class="game-options" style="display: flex; gap: 24px; justify-content: center; margin: 30px 0;">
+          <button id="joinToggle" class="option-btn join-btn">
             <div class="btn-icon">🎮</div>
             <div class="btn-text">Join Game</div>
             <div class="btn-desc">Enter a room code</div>
           </button>
-
-          <div id="joinForm" class="join-form" style="margin-top: 20px;">
-            <label>
-              <div class="muted" style="text-align: left; margin-bottom: 8px;">Room Code</div>
-              <input id="room" type="text" placeholder="Enter 5-character room code" maxlength="8" style="text-transform: uppercase;" />
-            </label>
-            <div class="actions" style="margin-top: 16px;">
-              <button id="join">Join Room</button>
-              <button id="cancelJoin" class="ghost">Cancel</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="host-section" style="margin-top: 40px; text-align: center;">
+          
           <button id="create" class="option-btn host-btn">
             <div class="btn-icon">🎯</div>
             <div class="btn-text">Host Game</div>
             <div class="btn-desc">Create a new room</div>
           </button>
+        </div>
+
+        <div id="joinForm" class="join-form" style="margin-top: 20px;">
+          <label>
+            <div class="muted" style="text-align: left; margin-bottom: 8px;">Room Code</div>
+            <input id="room" type="text" placeholder="Enter 5-character room code" maxlength="8" style="text-transform: uppercase;" />
+          </label>
+          <div class="actions" style="margin-top: 16px;">
+            <button id="join">Join Room</button>
+            <button id="cancelJoin" class="ghost">Cancel</button>
+          </div>
         </div>
       </div>
     </div>

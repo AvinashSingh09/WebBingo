@@ -24,14 +24,14 @@
     }
     joinForm.style.display = 'block';
     btnJoinToggle.style.display = 'none';
-    btnCreate.parentElement.style.display = 'none'; // Hide host game section
+    btnCreate.style.display = 'none'; // Hide host game button
     roomIn.focus();
   });
 
   btnCancel.addEventListener('click', () => {
     joinForm.style.display = 'none';
     btnJoinToggle.style.display = 'flex';
-    btnCreate.parentElement.style.display = 'block'; // Show host game section again
+    btnCreate.style.display = 'flex'; // Show host game button again
     roomIn.value = '';
   });
 
