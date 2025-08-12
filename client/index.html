@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bingo 75 – Multiplayer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>🎱 Bingo 75 – Multiplayer</h1>
+    <div class="subtitle">Rooms, host controls, real-time sync.</div>
+  </header>
+
+  <div class="row">
+    <section class="panel">
+      <div class="card-header"><div>B</div><div>I</div><div>N</div><div>G</div><div>O</div></div>
+      <div id="board" class="board"></div>
+    </section>
+
+    <section class="panel right">
+      <div class="stack">
+        <div class="room">
+          <div class="room-row">
+            <input id="name" placeholder="Your name" />
+            <button id="create">Create Room</button>
+          </div>
+          <div class="room-row">
+            <input id="roomId" placeholder="Room ID (e.g. 7KX2P)" />
+            <button id="join">Join Room</button>
+          </div>
+          <div class="room-info">Room: <span id="rid">—</span> • You are <span id="role">viewer</span></div>
+        </div>
+
+        <div class="ball-area panelish">
+          <div id="ball" class="ball"><span id="ball-num">--</span></div>
+          <div id="status" class="status">Waiting…</div>
+        </div>
+
+        <div class="controls">
+          <button id="start">Start</button>
+          <button id="pause">Pause</button>
+          <button id="reset" class="ghost">Reset</button>
+
+          <label class="slider">
+            Interval: <span id="ival">2.5</span>s
+            <input id="interval" type="range" min="0.8" max="4.0" step="0.1" value="2.5">
+          </label>
+
+          <label class="toggle">
+            <input id="automark" type="checkbox" checked>
+            Auto-mark
+          </label>
+        </div>
+
+        <div class="panelish">
+          <div class="called-title">Called</div>
+          <div id="called" class="called-grid"></div>
+        </div>
+
+        <div class="panelish">
+          <div class="called-title">Players</div>
+          <div id="players" class="players"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<canvas id="fx" class="fx"></canvas>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
