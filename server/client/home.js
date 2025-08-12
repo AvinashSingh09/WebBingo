@@ -22,6 +22,7 @@
       alert('Please enter your name first'); 
       return; 
     }
+    joinForm.classList.add('show');
     joinForm.style.display = 'block';
     btnJoinToggle.style.display = 'none';
     btnCreate.style.display = 'none'; // Hide host game button
@@ -29,6 +30,7 @@
   });
 
   btnCancel.addEventListener('click', () => {
+    joinForm.classList.remove('show');
     joinForm.style.display = 'none';
     btnJoinToggle.style.display = 'flex';
     btnCreate.style.display = 'flex'; // Show host game button again

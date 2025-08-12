@@ -76,6 +76,11 @@
     void currentNumberEl.offsetWidth; // Force reflow
     currentNumberEl.classList.add('active');
     numberLabelEl.textContent = `Called: ${number}`;
+    const header = document.querySelector('.card-header');
+    if(header){
+      header.style.filter = 'drop-shadow(0 0 12px rgba(91,124,255,.4))';
+      setTimeout(()=> header.style.filter = '', 350);
+    }
   }
 
   function addPreviousNumber(number) {
@@ -191,6 +196,8 @@
           const cellEl = boardEl.children[idx];
           if(cellEl && !cellEl.classList.contains('marked')){
             cellEl.classList.add('marked');
+            cellEl.classList.add('flash');
+            setTimeout(()=> cellEl.classList.remove('flash'), 450);
             marks.add(idx);
           }
         }

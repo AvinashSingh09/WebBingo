@@ -53,3 +53,46 @@ button:hover{filter:brightness(1.05)}button:active{transform:translateY(1px) sca
 .modal .title{font-size:22px;margin-bottom:8px;color:#cdd8ff}
 .modal .name{font-size:28px;font-weight:800;margin-bottom:12px}
 .modal .actions button{min-width:110px}
+
+/* --- UI enhancements & animations --- */
+:root{
+  --accent:#5b7cff;
+  --accent-2:#9fb5ff;
+  --glow: 0 10px 30px rgba(91,124,255,.25);
+}
+
+/* Subtle animated background overlay */
+body::before{
+  content:"";
+  position:fixed; inset:-20%; z-index:-1;
+  background: radial-gradient(800px 500px at 0% -10%, rgba(91,124,255,.08), transparent 60%),
+              radial-gradient(700px 500px at 120% 120%, rgba(0,199,255,.06), transparent 60%);
+  animation: floatBg 28s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes floatBg{from{transform:translate3d(-2%, -2%, 0)}to{transform:translate3d(2%, 2%, 0)}}
+
+/* Panels: add gentle hover lift */
+.panel, .panelish{transition: transform .18s ease, box-shadow .25s ease}
+.panel:hover, .panelish:hover{transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,.35)}
+
+/* Buttons: unify subtle glow */
+button{transition:transform .08s ease, filter .15s ease, box-shadow .25s ease}
+button:hover{box-shadow: var(--glow)}
+
+/* Board cells: glow when marked or flashed */
+.cell.marked .num{color:var(--accent-2)}
+.cell.flash{animation: flash .45s ease}
+
+/* Join form slide/fade animation (home page) */
+.join-form{display:none; opacity:0; transform:translateY(6px);
+  transition: opacity .18s ease, transform .18s ease}
+.join-form.show{display:block; opacity:1; transform:translateY(0)}
+
+/* Previous numbers chips: slightly larger and lively */
+.chip{will-change: transform, opacity}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition:none !important}
+}
