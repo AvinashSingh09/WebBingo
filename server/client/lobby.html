@@ -5,39 +5,178 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bingo – Lobby</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Responsive Lobby Styles */
+    .center {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: clamp(16px, 4vw, 32px);
+      box-sizing: border-box;
+    }
+    
+    .lobby-container {
+      width: min(900px, 95vw);
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: clamp(12px, 3vw, 24px);
+      box-shadow: 0 clamp(6px, 2vw, 16px) clamp(20px, 4vw, 40px) rgba(0,0,0,.25);
+      padding: clamp(16px, 4vw, 32px);
+      box-sizing: border-box;
+      animation: slideInScale 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes slideInScale {
+      0% { opacity: 0; transform: scale(0.8) translateY(50px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    .lobby-container h1 {
+      margin: 0 0 clamp(8px, 2vw, 16px) 0;
+      text-align: center;
+      font-size: clamp(24px, 6vw, 36px);
+      line-height: 1.2;
+    }
+    
+    .lobby-container .muted {
+      color: var(--muted);
+      margin-bottom: clamp(16px, 3vw, 24px);
+      text-align: center;
+      font-size: clamp(14px, 3vw, 16px);
+      line-height: 1.4;
+    }
+    
+    .room-section {
+      margin: clamp(12px, 3vw, 20px) 0;
+    }
+    
+    .room-info {
+      display: flex;
+      gap: clamp(8px, 2vw, 12px);
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .badge {
+      font-size: clamp(14px, 3vw, 18px);
+      padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 12px);
+      border-radius: clamp(6px, 1.5vw, 8px);
+      font-weight: 600;
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(12px, 3vw, 20px);
+      margin-top: clamp(16px, 4vw, 24px);
+    }
+    
+    @media (min-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .panel-section {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: clamp(8px, 2vw, 12px);
+      padding: clamp(12px, 3vw, 16px);
+    }
+    
+    .section-title {
+      color: var(--muted);
+      font-size: clamp(13px, 2.5vw, 15px);
+      margin-bottom: clamp(8px, 2vw, 12px);
+      font-weight: 600;
+    }
+    
+    .controls-section {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 2vw, 12px);
+    }
+    
+    .slider, .toggle {
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 1.5vw, 10px);
+      font-size: clamp(12px, 2.5vw, 14px);
+      flex-wrap: wrap;
+    }
+    
+    .slider input {
+      width: 100%;
+      max-width: 200px;
+      margin-left: clamp(4px, 1vw, 8px);
+    }
+    
+    .actions {
+      display: flex;
+      gap: clamp(8px, 2vw, 12px);
+      flex-wrap: wrap;
+      margin-top: clamp(8px, 2vw, 12px);
+      justify-content: center;
+    }
+    
+    button {
+      padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
+      font-size: clamp(12px, 2.5vw, 16px);
+      border-radius: clamp(6px, 1.5vw, 10px);
+      min-width: clamp(80px, 20vw, 120px);
+      box-sizing: border-box;
+    }
+    
+    @media (max-width: 480px) {
+      .room-info {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="center" style="min-height:100dvh;display:grid;place-items:center;padding:24px">
-    <div class="home" style="width:min(900px,100%);background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid rgba(255,255,255,.06);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:20px">
+  <div class="center">
+    <div class="lobby-container">
       <h1>🎱 Bingo Lobby</h1>
       <div class="muted">Share the room code with players. When ready, the host can start.</div>
 
-      <div class="panelish" style="margin:14px 0">
-        <div class="muted">Room</div>
-        <div id="roomInfo" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <div id="roomCode" class="badge" style="font-size:16px;padding:6px 10px">—</div>
+      <div class="room-section panel-section">
+        <div class="section-title">Room</div>
+        <div id="roomInfo" class="room-info">
+          <div id="roomCode" class="badge">—</div>
           <div id="role" class="badge" style="background:#2b3350">viewer</div>
         </div>
       </div>
 
-      <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div class="panelish">
-          <div class="muted">Players</div>
+      <div class="main-grid">
+        <div class="panel-section">
+          <div class="section-title">Players</div>
           <div id="players" class="players"></div>
         </div>
 
-        <div class="panelish">
-          <div class="muted">Host controls</div>
-          <div id="hostOnly">
+        <div class="panel-section">
+          <div class="section-title">Host controls</div>
+          <div id="hostOnly" class="controls-section">
             <label class="slider">
-              Interval: <span id="ival">2.5</span>s
+              <span>Interval: <span id="ival">2.5</span>s</span>
               <input id="interval" type="range" min="0.8" max="4.0" step="0.1" value="2.5">
             </label>
             <label class="toggle">
               <input id="automark" type="checkbox" checked>
-              Auto-mark
+              <span>Auto-mark</span>
             </label>
-            <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+            <div class="actions">
               <button id="start">Start Game</button>
               <button id="reset" class="ghost">Reset</button>
             </div>
