@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: webbingo
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production 
