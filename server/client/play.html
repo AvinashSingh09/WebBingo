@@ -6,29 +6,75 @@
   <title>Bingo Game</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    .game-container { 
-      max-width: 800px; margin: 0 auto; padding: 20px; 
-      animation: fadeInUp 0.8s ease-out;
+    /* Base responsive design */
+    body { 
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
+    
+    .game-container { 
+      max-width: min(1200px, 100vw);
+      margin: 0 auto; 
+      padding: clamp(12px, 4vw, 24px);
+      min-height: 100vh;
+      animation: fadeInUp 0.8s ease-out;
+      box-sizing: border-box;
+    }
+    
     @keyframes fadeInUp {
       0% { opacity: 0; transform: translateY(30px); }
       100% { opacity: 1; transform: translateY(0); }
     }
-    .player-header { text-align: center; margin-bottom: 20px; background: var(--panel); padding: 16px; border-radius: 12px; }
-    .player-name { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
-    .room-info { color: var(--muted); font-size: 14px; }
-    .current-number { text-align: center; margin-bottom: 30px; }
+    
+    .player-header { 
+      text-align: center; 
+      margin-bottom: clamp(16px, 3vw, 24px); 
+      background: var(--panel); 
+      padding: clamp(12px, 3vw, 20px); 
+      border-radius: clamp(8px, 2vw, 16px);
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+    
+    .player-name { 
+      font-size: clamp(18px, 4vw, 28px); 
+      font-weight: 800; 
+      color: var(--text); 
+      margin-bottom: clamp(4px, 1vw, 8px);
+      line-height: 1.2;
+    }
+    
+    .room-info { 
+      color: var(--muted); 
+      font-size: clamp(12px, 2.5vw, 16px);
+      font-weight: 500;
+    }
+    .current-number { 
+      text-align: center; 
+      margin-bottom: clamp(20px, 4vw, 40px);
+      padding: 0 clamp(16px, 4vw, 32px);
+    }
+    
     .number-display { 
-      width: 140px; height: 140px; border-radius: 70px; margin: 0 auto 16px;
+      width: clamp(100px, 20vw, 160px); 
+      height: clamp(100px, 20vw, 160px); 
+      border-radius: 50%; 
+      margin: 0 auto clamp(12px, 2vw, 20px);
       background: radial-gradient(circle at 35% 30%, #ffffff, #e7f0ff 45%, #b9d0ff 60%, #94a7ff 80%, #6a79ff 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 52px; font-weight: 800; color: #0b0f1f;
-      box-shadow: 0 12px 24px rgba(0,0,0,.3);
-      transform: scale(0.8) translateY(20px); opacity: 0; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-size: clamp(28px, 8vw, 56px); 
+      font-weight: 800; 
+      color: #0b0f1f;
+      box-shadow: 0 clamp(6px, 2vw, 16px) clamp(12px, 4vw, 32px) rgba(0,0,0,.3);
+      transform: scale(0.8) translateY(20px); 
+      opacity: 0; 
       transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
-      border: 4px solid rgba(255,255,255,.9);
+      border: clamp(2px, 0.5vw, 4px) solid rgba(255,255,255,.9);
     }
     .number-display.active { 
       transform: scale(1) translateY(0); 
@@ -66,11 +112,13 @@
     }
          .number-label { 
        color: var(--muted); 
-       font-size: 16px; 
+       font-size: clamp(14px, 3vw, 18px); 
        text-align: center; 
        transition: all 0.3s ease; 
        font-weight: 600;
-       margin-top: 8px;
+       margin-top: clamp(6px, 1.5vw, 12px);
+       padding: 0 clamp(16px, 4vw, 32px);
+       line-height: 1.3;
      }
      @keyframes labelPop {
        0% { color: var(--muted); }
@@ -79,33 +127,54 @@
        75% { color: #7c9dff; }
        100% { color: var(--text); }
      }
-    .game-layout { display: flex; justify-content: center; align-items: start; }
-    .bingo-section-full { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; }
+    .game-layout { 
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-start;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0 clamp(8px, 2vw, 16px);
+    }
+    
+    .bingo-section-full { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      width: 100%; 
+      max-width: min(600px, 90vw);
+      margin: 0 auto;
+    }
     
     /* Enhanced BINGO Header */
     .card-header { 
       display: grid; 
       grid-template-columns: repeat(5, 1fr); 
-      gap: 8px; 
-      margin-bottom: 16px; 
+      gap: clamp(4px, 1.5vw, 12px); 
+      margin-bottom: clamp(12px, 3vw, 24px); 
       width: 100%;
-      max-width: 500px;
+      max-width: 100%;
+      padding: 0 clamp(4px, 1vw, 8px);
     }
     
     .bingo-letter { 
       background: linear-gradient(135deg, #0f1220, #1a2332);
       color: #9fb5ff; 
       border: 1px solid rgba(255,255,255,.1); 
-      border-radius: 12px; 
-      padding: 12px 0; 
+      border-radius: clamp(6px, 2vw, 12px); 
+      padding: clamp(8px, 2.5vw, 16px) 0; 
       text-align: center; 
       font-weight: 800; 
-      font-size: 24px;
-      letter-spacing: 2px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      font-size: clamp(16px, 4vw, 28px);
+      letter-spacing: clamp(1px, 0.3vw, 3px);
+      box-shadow: 0 clamp(2px, 1vw, 6px) clamp(6px, 2vw, 16px) rgba(0,0,0,.2);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .bingo-letter::before {
@@ -132,24 +201,63 @@
     .board { 
       display: grid; 
       grid-template-columns: repeat(5, 1fr); 
-      gap: 8px; 
+      gap: clamp(4px, 1.5vw, 12px); 
       width: 100%;
-      max-width: 500px;
+      max-width: 100%;
+      padding: 0 clamp(4px, 1vw, 8px);
+      aspect-ratio: 1;
+    }
+    
+    .cell {
+      position: relative;
+      background: var(--cell);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: clamp(6px, 2vw, 12px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+      transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      font-size: clamp(14px, 3.5vw, 24px);
+      font-weight: 700;
+      min-height: clamp(40px, 10vw, 80px);
+    }
+    
+    .cell .num {
+      font-size: clamp(14px, 3.5vw, 24px);
+      transition: all .2s ease;
+      position: relative;
+      z-index: 2;
+      line-height: 1;
+    }
+    
+    .cell .mark {
+      position: absolute;
+      inset: clamp(2px, 1vw, 6px);
+      border-radius: clamp(4px, 1.5vw, 10px);
+      border: clamp(1px, 0.3vw, 3px) solid var(--mark);
+      opacity: 0;
+      transform: scale(.8);
+      transition: all .3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      background: rgba(91,124,255,.1);
     }
     
     /* Fixed Previous Numbers Panel */
     .previous-numbers-fixed { 
       position: fixed; 
-      right: 20px; 
+      right: clamp(8px, 2vw, 24px); 
       top: 50%; 
       transform: translateY(-50%); 
-      width: 280px; 
-      max-height: 80vh; 
+      width: clamp(240px, 25vw, 320px); 
+      max-height: clamp(60vh, 70vh, 85vh); 
       background: var(--panel); 
       border: 1px solid rgba(255,255,255,.06); 
-      border-radius: 16px; 
-      padding: 20px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,.25); 
+      border-radius: clamp(12px, 2vw, 20px); 
+      padding: clamp(12px, 3vw, 24px); 
+      box-shadow: 0 clamp(6px, 2vw, 16px) clamp(20px, 4vw, 40px) rgba(0,0,0,.25); 
       z-index: 100;
       backdrop-filter: blur(10px);
     }
@@ -157,20 +265,21 @@
     .previous-title { 
       color: var(--text); 
       font-weight: 700; 
-      margin-bottom: 16px; 
+      margin-bottom: clamp(12px, 2vw, 20px); 
       text-align: center; 
-      font-size: 16px;
+      font-size: clamp(14px, 2.5vw, 18px);
       border-bottom: 1px solid rgba(255,255,255,.1);
-      padding-bottom: 8px;
+      padding-bottom: clamp(6px, 1vw, 12px);
+      line-height: 1.2;
     }
     
     .numbers-grid-fixed { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
-      gap: 8px; 
-      max-height: calc(80vh - 100px); 
+      gap: clamp(4px, 1vw, 10px); 
+      max-height: calc(clamp(60vh, 70vh, 85vh) - clamp(60px, 10vw, 100px)); 
       overflow-y: auto;
-      padding-right: 8px;
+      padding-right: clamp(4px, 1vw, 8px);
     }
     
     /* Custom Scrollbar */
@@ -189,12 +298,23 @@
       background: rgba(91, 124, 255, 0.5);
     }
     .number-chip { 
-      aspect-ratio: 1; background: var(--chip); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 8px; display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 600; color: #cfe0ff; min-height: 40px;
-      transform: scale(0.8) rotateY(90deg); opacity: 0;
+      aspect-ratio: 1; 
+      background: var(--chip); 
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: clamp(4px, 1.5vw, 8px); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      font-size: clamp(10px, 2.5vw, 16px); 
+      font-weight: 600; 
+      color: #cfe0ff; 
+      min-height: clamp(28px, 7vw, 48px);
+      transform: scale(0.8) rotateY(90deg); 
+      opacity: 0;
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      position: relative; overflow: hidden;
+      position: relative; 
+      overflow: hidden;
+      line-height: 1;
     }
     .number-chip::before {
       content: ''; position: absolute; inset: 0;
@@ -222,36 +342,149 @@
       100% { transform: scale(1) rotateY(0deg) translateX(0); opacity: 1; }
     }
     .winner-overlay { 
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
-      display: none; align-items: center; justify-content: center;
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.8); 
+      z-index: 1000;
+      display: none; 
+      align-items: center; 
+      justify-content: center;
+      padding: clamp(16px, 4vw, 32px);
     }
     .winner-overlay.show { display: flex; }
     .winner-modal { 
-      background: var(--panel); border-radius: 16px; padding: 32px; text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 400px; width: 90%;
+      background: var(--panel); 
+      border-radius: clamp(12px, 3vw, 20px); 
+      padding: clamp(20px, 5vw, 40px); 
+      text-align: center;
+      box-shadow: 0 clamp(10px, 3vw, 25px) clamp(20px, 5vw, 50px) rgba(0,0,0,0.5); 
+      max-width: min(450px, 95vw); 
+      width: 100%;
+      margin: clamp(16px, 4vw, 32px);
     }
-    .winner-title { font-size: 28px; margin-bottom: 12px; color: #ffd700; }
-    .winner-name { font-size: 24px; font-weight: 800; margin-bottom: 24px; color: var(--text); }
-    .winner-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .vote-status { margin-top: 16px; color: var(--muted); font-size: 14px; }
-    @media (max-width: 1200px) {
+    .winner-title { 
+      font-size: clamp(20px, 5vw, 32px); 
+      margin-bottom: clamp(8px, 2vw, 16px); 
+      color: #ffd700; 
+      line-height: 1.2;
+    }
+    .winner-name { 
+      font-size: clamp(18px, 4vw, 28px); 
+      font-weight: 800; 
+      margin-bottom: clamp(16px, 4vw, 32px); 
+      color: var(--text); 
+      line-height: 1.3;
+    }
+    .winner-actions { 
+      display: flex; 
+      gap: clamp(8px, 2vw, 16px); 
+      justify-content: center; 
+      flex-wrap: wrap;
+    }
+    .winner-actions button {
+      padding: clamp(10px, 2.5vw, 16px) clamp(16px, 4vw, 24px);
+      font-size: clamp(12px, 2.5vw, 16px);
+      border-radius: clamp(6px, 1.5vw, 10px);
+      min-width: clamp(100px, 25vw, 140px);
+    }
+    .vote-status { 
+      margin-top: clamp(12px, 3vw, 20px); 
+      color: var(--muted); 
+      font-size: clamp(11px, 2.2vw, 16px);
+      line-height: 1.4;
+    }
+    /* Mobile and Tablet Responsive Design */
+    @media (max-width: 1024px) {
       .previous-numbers-fixed {
         position: static;
         width: 100%;
+        max-width: min(600px, 95vw);
         max-height: none;
         transform: none;
-        margin-bottom: 20px;
+        margin: 0 auto clamp(20px, 4vw, 32px);
         order: -1;
+        right: auto;
+        top: auto;
       }
       
       .numbers-grid-fixed { 
-        grid-template-columns: repeat(8, 1fr); 
-        max-height: 250px; 
+        grid-template-columns: repeat(6, 1fr); 
+        max-height: clamp(200px, 30vh, 300px); 
       }
       
       .game-layout {
         flex-direction: column;
         align-items: center;
+        gap: clamp(16px, 3vw, 24px);
+      }
+      
+      .game-container {
+        padding: clamp(16px, 4vw, 24px);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .numbers-grid-fixed { 
+        grid-template-columns: repeat(8, 1fr); 
+        max-height: clamp(180px, 25vh, 250px); 
+      }
+      
+      .number-display {
+        width: clamp(80px, 18vw, 120px);
+        height: clamp(80px, 18vw, 120px);
+        font-size: clamp(24px, 7vw, 40px);
+      }
+      
+      .bingo-letter {
+        font-size: clamp(14px, 3.5vw, 20px);
+        padding: clamp(6px, 2vw, 12px) 0;
+      }
+      
+      .cell .num {
+        font-size: clamp(12px, 3vw, 18px);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .game-container {
+        padding: clamp(8px, 3vw, 16px);
+      }
+      
+      .numbers-grid-fixed { 
+        grid-template-columns: repeat(6, 1fr); 
+        gap: clamp(3px, 0.8vw, 6px);
+      }
+      
+      .number-chip {
+        font-size: clamp(9px, 2.2vw, 12px);
+        min-height: clamp(24px, 6vw, 32px);
+      }
+      
+      .previous-numbers-fixed {
+        padding: clamp(8px, 2vw, 16px);
+        margin-bottom: clamp(16px, 3vw, 24px);
+      }
+      
+      .previous-title {
+        font-size: clamp(12px, 2.2vw, 14px);
+        margin-bottom: clamp(8px, 1.5vw, 12px);
+      }
+    }
+    
+    /* Landscape orientation adjustments */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .current-number {
+        margin-bottom: clamp(12px, 2vw, 20px);
+      }
+      
+      .number-display {
+        width: clamp(60px, 12vw, 100px);
+        height: clamp(60px, 12vw, 100px);
+        font-size: clamp(20px, 5vw, 32px);
+      }
+      
+      .previous-numbers-fixed {
+        max-height: 70vh;
       }
     }
   </style>
