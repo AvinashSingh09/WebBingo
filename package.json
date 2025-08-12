@@ -4,9 +4,9 @@
   "description": "A real-time multiplayer Bingo game built with Node.js, Express, and Socket.IO",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "build": "npm install --prefix server",
-    "dev": "node server/server.js"
+    "start": "node start.js",
+    "install": "cd server && npm install",
+    "dev": "cd server && npm start"
   },
   "engines": {
     "node": ">=16.0.0",
@@ -14,7 +14,7 @@
   },
   "keywords": [
     "bingo",
-    "multiplayer",
+    "multiplayer", 
     "socketio",
     "game",
     "realtime"
@@ -25,10 +25,5 @@
     "type": "git",
     "url": "https://github.com/AvinashSingh09/WebBingo.git"
   },
-  "homepage": "https://github.com/AvinashSingh09/WebBingo#readme",
-  "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "cors": "^2.8.5"
-  }
+  "homepage": "https://github.com/AvinashSingh09/WebBingo#readme"
 } 
