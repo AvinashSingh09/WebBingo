@@ -72,35 +72,65 @@
 
   function showCurrentNumber(number) {
     // Reset the animation
-    currentNumberEl.classList.remove('active');
+    currentNumberEl.classList.remove('active', 'new-number');
     currentNumberEl.style.animation = 'none';
     void currentNumberEl.offsetWidth; // Force reflow
     
     currentNumberEl.textContent = number;
-    currentNumberEl.classList.add('active');
+    currentNumberEl.classList.add('active', 'new-number');
     numberLabelEl.textContent = `Called: ${number}`;
     
-    // Add a shake effect to the label
+    // Add a color animation to the label (no transform to avoid conflicts)
     numberLabelEl.style.animation = 'none';
     void numberLabelEl.offsetWidth;
     numberLabelEl.style.animation = 'labelPop 0.6s ease';
+    
+    // Remove new-number class after animation completes
+    setTimeout(() => {
+      currentNumberEl.classList.remove('new-number');
+    }, 1000);
   }
 
-  function addPreviousNumber(number) {
+  function addPreviousNumber(number, isLatest = false) {
     const chip = document.createElement('div');
-    chip.className = 'number-chip';
+    chip.className = isLatest ? 'number-chip latest' : 'number-chip';
     chip.textContent = number;
-    previousNumbersEl.prepend(chip);
+    
+    // Remove latest class from all other chips
+    if (isLatest) {
+      previousNumbersEl.querySelectorAll('.number-chip.latest').forEach(el => {
+        el.classList.remove('latest');
+      });
+    }
+    
+    // For real-time updates (new numbers), add to top
+    // For bulk updates (room state), add to end to maintain order
+    if (isLatest && previousNumbersEl.children.length > 0) {
+      previousNumbersEl.insertBefore(chip, previousNumbersEl.firstChild);
+    } else {
+      previousNumbersEl.appendChild(chip);
+    }
     
     // Add animation with slight delay
     setTimeout(() => {
       chip.classList.add('animate-in');
     }, 50);
+    
+    // Remove latest styling after a few seconds
+    if (isLatest) {
+      setTimeout(() => {
+        chip.classList.remove('latest');
+      }, 3000);
+    }
   }
 
   function updatePreviousNumbers(calledNumbers) {
     previousNumbersEl.innerHTML = '';
-    calledNumbers.slice().reverse().forEach(addPreviousNumber);
+    // Show most recent numbers first - reverse the array so latest is index 0
+    const reversedNumbers = calledNumbers.slice().reverse();
+    reversedNumbers.forEach((num, index) => {
+      addPreviousNumber(num, index === 0); // Mark the first (latest) number
+    });
   }
 
   // Confetti animation
@@ -189,13 +219,47 @@
     // Update vote status if game ended
     if(r.gameEnded && r.winner) {
       voteStatusEl.style.display = 'block';
-      voteStatusEl.textContent = `${r.playAgainVotes} of ${r.totalPlayers} players want to play again`;
+      const votes = r.playAgainVotes || 0;
+      const total = r.totalPlayers || 0;
+      const needed = Math.ceil(total * 0.6);
+      
+      if (votes >= needed) {
+        voteStatusEl.textContent = `Starting new game...`;
+        voteStatusEl.style.color = '#7c9dff';
+      } else {
+        voteStatusEl.textContent = `${votes} of ${total} players voted (${needed} needed)`;
+        voteStatusEl.style.color = 'var(--muted)';
+      }
+    } else {
+      voteStatusEl.style.display = 'none';
     }
   });
 
   socket.on('number_called', (number) => {
     showCurrentNumber(number);
-    addPreviousNumber(number);
+    
+    // Add the new number to the top of the previous numbers list
+    const chip = document.createElement('div');
+    chip.className = 'number-chip latest';
+    chip.textContent = number;
+    
+    // Remove latest class from all other chips
+    previousNumbersEl.querySelectorAll('.number-chip.latest').forEach(el => {
+      el.classList.remove('latest');
+    });
+    
+    // Insert at the very top
+    previousNumbersEl.insertBefore(chip, previousNumbersEl.firstChild);
+    
+    // Add animation
+    setTimeout(() => {
+      chip.classList.add('animate-in');
+    }, 50);
+    
+    // Remove latest styling after a few seconds
+    setTimeout(() => {
+      chip.classList.remove('latest');
+    }, 3000);
     
     // Auto-mark if enabled
     if(room?.autoMark){
@@ -217,8 +281,30 @@
 
   socket.on('play_again_vote', ({name}) => {
     if(room) {
-      voteStatusEl.textContent = `${room.playAgainVotes || 0} of ${room.totalPlayers || 0} players want to play again`;
+      const votes = room.playAgainVotes || 0;
+      const total = room.totalPlayers || 0;
+      const needed = Math.ceil(total * 0.6);
+      voteStatusEl.textContent = `${votes} of ${total} players voted (${needed} needed)`;
+      
+      if (votes >= needed) {
+        voteStatusEl.textContent = `Starting new game...`;
+        voteStatusEl.style.color = '#7c9dff';
+      }
     }
+  });
+
+  socket.on('new_game_starting', () => {
+    // Hide winner modal and reset UI
+    hideWinner();
+    
+    // Reset play again button
+    playAgainBtn.disabled = false;
+    playAgainBtn.textContent = 'Play Again';
+    
+    // Show notification
+    numberLabelEl.textContent = 'New game starting...';
+    currentNumberEl.textContent = '🎮';
+    currentNumberEl.classList.add('active');
   });
 
   socket.on('error_msg', (msg) => alert(msg));

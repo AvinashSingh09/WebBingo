@@ -20,20 +20,28 @@
     .room-info { color: var(--muted); font-size: 14px; }
     .current-number { text-align: center; margin-bottom: 30px; }
     .number-display { 
-      width: 120px; height: 120px; border-radius: 60px; margin: 0 auto 16px;
+      width: 140px; height: 140px; border-radius: 70px; margin: 0 auto 16px;
       background: radial-gradient(circle at 35% 30%, #ffffff, #e7f0ff 45%, #b9d0ff 60%, #94a7ff 80%, #6a79ff 100%);
       display: flex; align-items: center; justify-content: center;
-      font-size: 48px; font-weight: 800; color: #0b0f1f;
+      font-size: 52px; font-weight: 800; color: #0b0f1f;
       box-shadow: 0 12px 24px rgba(0,0,0,.3);
       transform: scale(0.8) translateY(20px); opacity: 0; 
       transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
+      border: 4px solid rgba(255,255,255,.9);
     }
     .number-display.active { 
-      transform: scale(1.1) translateY(0); 
+      transform: scale(1) translateY(0); 
       opacity: 1; 
       animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards,
-                 glow 2s ease-in-out infinite alternate;
+                 glow 2s ease-in-out infinite alternate,
+                 float 3s ease-in-out infinite 1s;
+    }
+    .number-display.new-number {
+      animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards,
+                 glow 2s ease-in-out infinite alternate,
+                 float 3s ease-in-out infinite 1s,
+                 shake 0.5s ease-in-out 0.3s;
     }
     @keyframes bounceIn {
       0% { transform: scale(0.3) translateY(30px); opacity: 0; }
@@ -47,20 +55,139 @@
       0% { box-shadow: 0 12px 24px rgba(0,0,0,.3), 0 0 0 0 rgba(106, 121, 255, 0.4); }
       100% { box-shadow: 0 12px 24px rgba(0,0,0,.3), 0 0 20px 5px rgba(106, 121, 255, 0.6); }
     }
-         .number-label { color: var(--muted); font-size: 16px; text-align: center; transition: all 0.3s ease; }
-     @keyframes labelPop {
-       0% { transform: scale(1) translateY(0); }
-       25% { transform: scale(1.1) translateY(-3px); color: #7c9dff; }
-       50% { transform: scale(1.05) translateY(-1px); }
-       75% { transform: scale(1.02) translateY(-2px); }
-       100% { transform: scale(1) translateY(0); }
+    @keyframes float {
+      0%, 100% { transform: scale(1) translateY(0px); }
+      50% { transform: scale(1) translateY(-8px); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: scale(1) translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: scale(1) translateX(-3px); }
+      20%, 40%, 60%, 80% { transform: scale(1) translateX(3px); }
+    }
+         .number-label { 
+       color: var(--muted); 
+       font-size: 16px; 
+       text-align: center; 
+       transition: all 0.3s ease; 
+       font-weight: 600;
+       margin-top: 8px;
      }
-    .game-layout { display: grid; grid-template-columns: 1fr 280px; gap: 40px; align-items: start; }
-    .bingo-section { display: flex; flex-direction: column; align-items: center; }
-    .sidebar { position: sticky; top: 20px; }
-    .previous-numbers { background: var(--panel); border-radius: 12px; padding: 16px; height: fit-content; }
-    .previous-title { color: var(--text); font-weight: 700; margin-bottom: 12px; text-align: center; }
-    .numbers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 500px; overflow-y: auto; }
+     @keyframes labelPop {
+       0% { color: var(--muted); }
+       25% { color: #7c9dff; }
+       50% { color: #8fa8ff; }
+       75% { color: #7c9dff; }
+       100% { color: var(--text); }
+     }
+    .game-layout { display: flex; justify-content: center; align-items: start; }
+    .bingo-section-full { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 600px; }
+    
+    /* Enhanced BINGO Header */
+    .card-header { 
+      display: grid; 
+      grid-template-columns: repeat(5, 1fr); 
+      gap: 8px; 
+      margin-bottom: 16px; 
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .bingo-letter { 
+      background: linear-gradient(135deg, #0f1220, #1a2332);
+      color: #9fb5ff; 
+      border: 1px solid rgba(255,255,255,.1); 
+      border-radius: 12px; 
+      padding: 12px 0; 
+      text-align: center; 
+      font-weight: 800; 
+      font-size: 24px;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .bingo-letter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,.05), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    
+    .bingo-letter:hover {
+      transform: translateY(-2px);
+      color: #b8d0ff;
+      border-color: rgba(159, 181, 255, 0.3);
+      box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    }
+    
+    .bingo-letter:hover::before {
+      transform: translateX(100%);
+    }
+    
+    /* Board alignment with BINGO letters */
+    .board { 
+      display: grid; 
+      grid-template-columns: repeat(5, 1fr); 
+      gap: 8px; 
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    /* Fixed Previous Numbers Panel */
+    .previous-numbers-fixed { 
+      position: fixed; 
+      right: 20px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      width: 280px; 
+      max-height: 80vh; 
+      background: var(--panel); 
+      border: 1px solid rgba(255,255,255,.06); 
+      border-radius: 16px; 
+      padding: 20px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,.25); 
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    
+    .previous-title { 
+      color: var(--text); 
+      font-weight: 700; 
+      margin-bottom: 16px; 
+      text-align: center; 
+      font-size: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding-bottom: 8px;
+    }
+    
+    .numbers-grid-fixed { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 8px; 
+      max-height: calc(80vh - 100px); 
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    
+    /* Custom Scrollbar */
+    .numbers-grid-fixed::-webkit-scrollbar {
+      width: 6px;
+    }
+    .numbers-grid-fixed::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+    .numbers-grid-fixed::-webkit-scrollbar-thumb {
+      background: rgba(91, 124, 255, 0.3);
+      border-radius: 3px;
+    }
+    .numbers-grid-fixed::-webkit-scrollbar-thumb:hover {
+      background: rgba(91, 124, 255, 0.5);
+    }
     .number-chip { 
       aspect-ratio: 1; background: var(--chip); border: 1px solid rgba(255,255,255,.1);
       border-radius: 8px; display: flex; align-items: center; justify-content: center;
@@ -77,6 +204,17 @@
     .number-chip:hover::before { transform: translateX(100%); }
     .number-chip.animate-in {
       animation: chipSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+    .number-chip.latest {
+      background: linear-gradient(135deg, #5b7cff, #4a6bff);
+      border-color: rgba(91, 124, 255, 0.5);
+      color: #ffffff;
+      animation: chipSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards,
+                 pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 5px rgba(91, 124, 255, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(91, 124, 255, 0.6); }
     }
     @keyframes chipSlideIn {
       0% { transform: scale(0.3) rotateY(90deg) translateX(-20px); opacity: 0; }
@@ -96,11 +234,25 @@
     .winner-name { font-size: 24px; font-weight: 800; margin-bottom: 24px; color: var(--text); }
     .winner-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .vote-status { margin-top: 16px; color: var(--muted); font-size: 14px; }
-    @media (max-width: 900px) {
-      .game-layout { grid-template-columns: 1fr; gap: 20px; }
-      .sidebar { order: -1; position: static; }
-      .numbers-grid { grid-template-columns: repeat(8, 1fr); max-height: 250px; }
-      .previous-numbers { margin-bottom: 20px; }
+    @media (max-width: 1200px) {
+      .previous-numbers-fixed {
+        position: static;
+        width: 100%;
+        max-height: none;
+        transform: none;
+        margin-bottom: 20px;
+        order: -1;
+      }
+      
+      .numbers-grid-fixed { 
+        grid-template-columns: repeat(8, 1fr); 
+        max-height: 250px; 
+      }
+      
+      .game-layout {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
@@ -120,21 +272,23 @@
 
     <!-- Game Layout -->
     <div class="game-layout">
-      <!-- Bingo Card Section -->
-      <div class="bingo-section">
+      <!-- Bingo Card Section (Full Width) -->
+      <div class="bingo-section-full">
         <div class="card-header">
-          <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
+          <div class="bingo-letter">B</div>
+          <div class="bingo-letter">I</div>
+          <div class="bingo-letter">N</div>
+          <div class="bingo-letter">G</div>
+          <div class="bingo-letter">O</div>
         </div>
         <div id="board" class="board"></div>
       </div>
+    </div>
 
-      <!-- Sidebar with Previous Numbers -->
-      <div class="sidebar">
-        <div class="previous-numbers">
-          <div class="previous-title">Previous Numbers</div>
-          <div id="previousNumbers" class="numbers-grid"></div>
-        </div>
-      </div>
+    <!-- Fixed Previous Numbers Panel (Right Side) -->
+    <div class="previous-numbers-fixed">
+      <div class="previous-title">Previous Numbers</div>
+      <div id="previousNumbers" class="numbers-grid-fixed"></div>
     </div>
   </div>
 

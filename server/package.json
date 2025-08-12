@@ -4,11 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build-css": "npx tailwindcss -i ./client/input.css -o ./client/tailwind.css",
+    "watch-css": "npx tailwindcss -i ./client/input.css -o ./client/tailwind.css --watch"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "cors": "^2.8.5"
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.11"
   }
 }

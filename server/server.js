@@ -330,6 +330,39 @@ io.on('connection', (socket) => {
       p.playAgainVote = true;
       room.playAgainVotes.add(socket.id);
       io.to(room.id).emit('play_again_vote', { playerId: socket.id, name: p.name });
+      
+      // Auto-restart if majority (>50%) or all players voted to play again
+      const totalPlayers = room.players.size;
+      const votesNeeded = Math.ceil(totalPlayers * 0.6); // 60% threshold
+      
+      if (room.playAgainVotes.size >= votesNeeded) {
+        // Reset the game automatically
+        setTimeout(() => {
+          // New seed for a fresh set of cards
+          room.seed = (Math.random()*0xffffffff)>>>0;
+          room.called=[]; room.running=false; room.winner=null; room.gameEnded=false;
+          room.playAgainVotes.clear();
+          clearTimer(room);
+          
+          // Regenerate cards for all players and notify them
+          for (const [pid,p] of room.players.entries()){
+            const newCard = generateCard(room.seed, pid);
+            p.card = newCard;
+            p.marks = new Set([12]); p.lines = new Set(); p.fullHouse = false; p.playAgainVote = false;
+            io.to(pid).emit('new_card', { card: newCard });
+          }
+          
+          // Notify players that new game is starting
+          io.to(room.id).emit('new_game_starting');
+          emitState(room);
+          
+          // Start the new game
+          room.running = true;
+          const stillGoing = callNext(room);
+          if (stillGoing) startTimer(room);
+          emitState(room);
+        }, 2000); // 2 second delay to show the vote result
+      }
     }
     emitState(room);
   });
