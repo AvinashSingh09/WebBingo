@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bingo – Home</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .center{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .home{width:min(720px,100%);background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
+      border:1px solid rgba(255,255,255,.06);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:20px}
+    .home h1{margin:0 0 8px 0}
+    .muted{color:var(--muted);margin-bottom:18px}
+    .row{display:grid;grid-template-columns:1fr;gap:14px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:700px){.grid2{grid-template-columns:1fr}}
+    input[type="text"]{width:100%;padding:12px 14px;background:#121525;color:#e9ecf1;border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;outline:none}
+    .panelish{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;padding:14px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    button{appearance:none;border:0;border-radius:10px;padding:10px 14px;background:linear-gradient(180deg,#4f78ff,#3658ff);
+      color:#fff;font-weight:700;cursor:pointer;box-shadow:0 8px 14px rgba(0,0,0,.25)}
+    .ghost{background:#253058;color:#cfe0ff;border:1px solid rgba(255,255,255,.18)}
+    .note{color:var(--muted);font-size:13px;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="center">
+    <div class="home">
+      <h1>🎱 Bingo Multiplayer</h1>
+      <div class="muted">Enter your name, then create a room or join one.</div>
+
+      <div class="row">
+        <label>
+          <div class="muted">Your name</div>
+          <input id="name" type="text" placeholder="e.g. Ankit" maxlength="24" />
+        </label>
+
+        <div class="grid2">
+          <div class="panelish">
+            <div class="muted">Create a new room</div>
+            <div class="actions">
+              <button id="create">Create Room</button>
+            </div>
+            <div class="note">You’ll be the host. Share the room code.</div>
+          </div>
+
+          <div class="panelish">
+            <div class="muted">Join an existing room</div>
+            <input id="room" type="text" placeholder="Room ID (e.g. 7KX2P)" maxlength="8" />
+            <div class="actions">
+              <button class="ghost" id="join">Join Room</button>
+            </div>
+            <div class="note">Ask the host for the 5-character code.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="home.js"></script>
+</body>
+</html>

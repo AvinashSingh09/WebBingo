@@ -53,8 +53,7 @@ function getLines(){
   const L=[];
   for (let r=0;r<5;r++) L.push([r*5, r*5+1, r*5+2, r*5+3, r*5+4]);   // 0..4 rows
   for (let c=0;c<5;c++) L.push([c, c+5, c+10, c+15, c+20]);         // 5..9 cols
-  L.push([0,6,12,18,24]);                                           // 10 diag
-  L.push([4,8,12,16,20]);                                           // 11 diag
+  // Removed diagonal lines - only horizontal and vertical lines allowed
   return L;
 }
 const ALL_LINES = getLines();
@@ -65,9 +64,11 @@ const ALL_LINES = getLines();
   called:number[],
   running:boolean,
   interval:number, autoMark:boolean,
-  players: Map<socketId,{name,card:number[],marks:Set<number>,lines:Set<string>,fullHouse:boolean}>,
+  players: Map<socketId,{name,card:number[],marks:Set<number>,lines:Set<string>,fullHouse:boolean,playAgainVote:boolean}>,
   timer:null|NodeJS.Timer,
-  winner:null|{ id, name, lineType, lineIndex }
+  winner:null|{ id, name, lineType, lineIndex },
+  gameEnded: boolean,
+  playAgainVotes: Set<socketId>
 }
 */
 const ROOMS = new Map();
@@ -84,14 +85,22 @@ function makeHostKey(){
 function emitState(room){
   const pubPlayers = {};
   for (const [id,p] of room.players){
-    pubPlayers[id] = { name:p.name, lines:[...p.lines], fullHouse:!!p.fullHouse };
+    pubPlayers[id] = { 
+      name:p.name, 
+      lines:[...p.lines], 
+      fullHouse:!!p.fullHouse,
+      playAgainVote: !!p.playAgainVote
+    };
   }
   io.to(room.id).emit('room_state', {
     id:room.id, hostId:room.hostId,
     called:room.called, running:room.running,
     interval:room.interval, autoMark:room.autoMark,
     players:pubPlayers,
-    winner: room.winner || null
+    winner: room.winner || null,
+    gameEnded: !!room.gameEnded,
+    playAgainVotes: room.playAgainVotes ? room.playAgainVotes.size : 0,
+    totalPlayers: room.players.size
   });
 }
 function nextBagNumber(room){
@@ -124,7 +133,7 @@ function checkLinesAndFull(room, playerId, announce=false){
     const ok = line.every(idx => idx===12 || p.marks.has(idx));
     if (ok && !p.lines.has(String(i))){
       p.lines.add(String(i));
-      if (i < 10) newRowOrCol = true; // 0..4 rows, 5..9 cols
+      newRowOrCol = true; // Any line wins now (only rows and cols exist)
       if (announce) io.to(room.id).emit('line_won', { playerId, lineIndex:i });
     }
   });
@@ -164,11 +173,12 @@ function callNext(room){
   for (const [pid,p] of room.players){
     const { newRowOrCol } = checkLinesAndFull(room, pid, false);
     if (newRowOrCol && !room.winner){
-      // Decide row/col type for message (we don't compute exact which here; optional)
-      room.winner = { id: pid, name: p.name, lineType: 'row_or_col', lineIndex: -1 };
+      // Player won with a line
+      room.winner = { id: pid, name: p.name, lineType: 'line', lineIndex: -1 };
       room.running = false;
+      room.gameEnded = true;
       clearTimer(room);
-      io.to(room.id).emit('line_winner', { playerId: pid, name: p.name });
+      io.to(room.id).emit('game_winner', { playerId: pid, name: p.name });
       break;
     }
   }
@@ -188,14 +198,15 @@ io.on('connection', (socket) => {
     const room = {
       id, hostId:socket.id, hostKey, seed,
       called:[], running:false, interval:2500, autoMark:true,
-      players:new Map(), timer:null, winner:null
+      players:new Map(), timer:null, winner:null,
+      gameEnded:false, playAgainVotes:new Set()
     };
     ROOMS.set(id, room);
     socket.join(id);
     currentRoom = id;
 
     const card = generateCard(seed, socket.id);
-    room.players.set(socket.id, { name:name||'Host', card, marks:new Set([12]), lines:new Set(), fullHouse:false });
+    room.players.set(socket.id, { name:name||'Host', card, marks:new Set([12]), lines:new Set(), fullHouse:false, playAgainVote:false });
 
     socket.emit('room_created', { id, seed, hostKey });
     socket.emit('joined', { id, seed, card }); // host gets their card
@@ -209,7 +220,7 @@ io.on('connection', (socket) => {
     socket.join(roomId); currentRoom = roomId;
 
     const card = generateCard(room.seed, socket.id);
-    room.players.set(socket.id, { name:name||'Player', card, marks:new Set([12]), lines:new Set(), fullHouse:false });
+    room.players.set(socket.id, { name:name||'Player', card, marks:new Set([12]), lines:new Set(), fullHouse:false, playAgainVote:false });
     // If this joiner presents the valid hostKey, reclaim host role
     if (hostKey && hostKey === room.hostKey){ room.hostId = socket.id; }
     else if (room.hostId == null) { room.hostId = socket.id; }
@@ -236,13 +247,14 @@ io.on('connection', (socket) => {
     const room = ROOMS.get(currentRoom); if (!room || room.hostId!==socket.id) return;
     // New seed for a fresh set of cards
     room.seed = (Math.random()*0xffffffff)>>>0;
-    room.called=[]; room.running=false; room.winner=null;
+    room.called=[]; room.running=false; room.winner=null; room.gameEnded=false;
+    room.playAgainVotes.clear();
     clearTimer(room);
     // Regenerate cards for all players and notify them
     for (const [pid,p] of room.players.entries()){
       const newCard = generateCard(room.seed, pid);
       p.card = newCard;
-      p.marks = new Set([12]); p.lines = new Set(); p.fullHouse = false;
+      p.marks = new Set([12]); p.lines = new Set(); p.fullHouse = false; p.playAgainVote = false;
       io.to(pid).emit('new_card', { card: newCard });
     }
     emitState(room);
@@ -282,9 +294,9 @@ io.on('connection', (socket) => {
     }
     const { newRowOrCol } = checkLinesAndFull(room, socket.id, false);
     if (newRowOrCol && !room.winner){
-      room.winner = { id: socket.id, name: p.name, lineType: 'row_or_col', lineIndex: -1 };
-      room.running = false; clearTimer(room);
-      io.to(room.id).emit('line_winner', { playerId: socket.id, name: p.name });
+      room.winner = { id: socket.id, name: p.name, lineType: 'line', lineIndex: -1 };
+      room.running = false; room.gameEnded = true; clearTimer(room);
+      io.to(room.id).emit('game_winner', { playerId: socket.id, name: p.name });
     }
     emitState(room);
   });
@@ -302,10 +314,31 @@ io.on('connection', (socket) => {
     const { newRowOrCol } = checkLinesAndFull(room, socket.id, true);
     if (newRowOrCol && !room.winner){
       const p = room.players.get(socket.id);
-      room.winner = { id: socket.id, name: p.name, lineType: 'row_or_col', lineIndex: -1 };
-      room.running = false; clearTimer(room);
-      io.to(room.id).emit('line_winner', { playerId: socket.id, name: p.name });
+      room.winner = { id: socket.id, name: p.name, lineType: 'line', lineIndex: -1 };
+      room.running = false; room.gameEnded = true; clearTimer(room);
+      io.to(room.id).emit('game_winner', { playerId: socket.id, name: p.name });
     }
+    emitState(room);
+  });
+
+  // Play again voting system
+  socket.on('vote_play_again', ()=>{
+    const room = ROOMS.get(currentRoom); if (!room || !room.gameEnded) return;
+    const p = room.players.get(socket.id); if (!p) return;
+    
+    if (!p.playAgainVote) {
+      p.playAgainVote = true;
+      room.playAgainVotes.add(socket.id);
+      io.to(room.id).emit('play_again_vote', { playerId: socket.id, name: p.name });
+    }
+    emitState(room);
+  });
+
+  socket.on('vote_exit', ()=>{
+    const room = ROOMS.get(currentRoom); if (!room) return;
+    socket.leave(currentRoom);
+    room.players.delete(socket.id);
+    room.playAgainVotes.delete(socket.id);
     emitState(room);
   });
 
@@ -315,6 +348,7 @@ io.on('connection', (socket) => {
     if (!room) return;
 
     room.players.delete(socket.id);
+    room.playAgainVotes.delete(socket.id);
     if (room.hostId === socket.id){
       // Keep hostId as-is; the real host can reclaim on next join using hostKey
       // If absolutely nobody is left, leave room as-is to allow reconnects

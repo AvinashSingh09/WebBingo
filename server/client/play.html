@@ -3,58 +3,107 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Bingo 75 – Multiplayer</title>
+  <title>Bingo Game</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .game-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .player-header { text-align: center; margin-bottom: 20px; background: var(--panel); padding: 16px; border-radius: 12px; }
+    .player-name { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .room-info { color: var(--muted); font-size: 14px; }
+    .current-number { text-align: center; margin-bottom: 30px; }
+    .number-display { 
+      width: 120px; height: 120px; border-radius: 60px; margin: 0 auto 16px;
+      background: radial-gradient(circle at 35% 30%, #ffffff, #e7f0ff 45%, #b9d0ff 60%, #94a7ff 80%, #6a79ff 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; font-weight: 800; color: #0b0f1f;
+      box-shadow: 0 12px 24px rgba(0,0,0,.3);
+      transform: scale(0.9); opacity: 0.7; transition: all 0.3s ease;
+    }
+    .number-display.active { transform: scale(1); opacity: 1; }
+    .number-label { color: var(--muted); font-size: 16px; text-align: center; }
+    .game-layout { display: grid; grid-template-columns: 1fr 300px; gap: 30px; }
+    .bingo-section { }
+    .sidebar { }
+    .previous-numbers { background: var(--panel); border-radius: 12px; padding: 16px; }
+    .previous-title { color: var(--text); font-weight: 700; margin-bottom: 12px; text-align: center; }
+    .numbers-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; max-height: 300px; overflow-y: auto; }
+    .number-chip { 
+      aspect-ratio: 1; background: var(--chip); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #cfe0ff;
+    }
+    .winner-overlay { 
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
+      display: none; align-items: center; justify-content: center;
+    }
+    .winner-overlay.show { display: flex; }
+    .winner-modal { 
+      background: var(--panel); border-radius: 16px; padding: 32px; text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 400px; width: 90%;
+    }
+    .winner-title { font-size: 28px; margin-bottom: 12px; color: #ffd700; }
+    .winner-name { font-size: 24px; font-weight: 800; margin-bottom: 24px; color: var(--text); }
+    .winner-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .vote-status { margin-top: 16px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 900px) {
+      .game-layout { grid-template-columns: 1fr; gap: 20px; }
+      .sidebar { order: -1; }
+      .numbers-grid { grid-template-columns: repeat(12, 1fr); max-height: 200px; }
+    }
+  </style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <h1>🎱 Bingo 75 – Multiplayer</h1>
-    <div class="subtitle">Rooms, host controls, real-time sync.</div>
-  </header>
+  <div class="game-container">
+    <!-- Player Header -->
+    <div class="player-header">
+      <div class="player-name" id="playerName">Player</div>
+      <div class="room-info">Room: <span id="roomCode">—</span></div>
+    </div>
 
-  <div class="row">
-    <section class="panel">
-      <div class="card-header"><div>B</div><div>I</div><div>N</div><div>G</div><div>O</div></div>
-      <div id="board" class="board"></div>
-    </section>
+    <!-- Current Number Display -->
+    <div class="current-number">
+      <div class="number-display" id="currentNumber">—</div>
+      <div class="number-label" id="numberLabel">Waiting for next number...</div>
+    </div>
 
-    <section class="panel right">
-      <div class="stack">
-                <div class="room-info">Room: <span id="rid">—</span> • You are <span id="role">player</span></div>
-
-        <div class="ball-area panelish">
-          <div id="ball" class="ball"><span id="ball-num">--</span></div>
-          <div id="status" class="status">Waiting…</div>
+    <!-- Game Layout -->
+    <div class="game-layout">
+      <!-- Bingo Card Section -->
+      <div class="bingo-section">
+        <div class="card-header">
+          <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
         </div>
+        <div id="board" class="board"></div>
+      </div>
 
-        <div class="panelish">
-          <div class="called-title">Called</div>
-          <div id="called" class="called-grid"></div>
-        </div>
-
-        <div class="panelish">
-          <div class="called-title">Players</div>
-          <div id="players" class="players"></div>
+      <!-- Sidebar with Previous Numbers -->
+      <div class="sidebar">
+        <div class="previous-numbers">
+          <div class="previous-title">Previous Numbers</div>
+          <div id="previousNumbers" class="numbers-grid"></div>
         </div>
       </div>
-    </section>
-  </div>
-</div>
-
-<canvas id="fx" class="fx"></canvas>
-<div id="winnerOverlay" class="modal-overlay">
-  <div class="modal">
-    <div class="title">We have a winner!</div>
-    <div id="winnerName" class="name">—</div>
-    <div class="actions" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-      <button id="winnerRestart">Restart</button>
-      <button id="winnerOk" class="ghost">OK</button>
     </div>
   </div>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="main.js"></script>
+  <!-- Winner Modal -->
+  <div id="winnerOverlay" class="winner-overlay">
+    <div class="winner-modal">
+      <div class="winner-title">🏆 Winner!</div>
+      <div class="winner-name" id="winnerName">—</div>
+      <div class="winner-actions">
+        <button id="playAgainBtn">Play Again</button>
+        <button id="exitGameBtn" class="ghost">Exit Game</button>
+      </div>
+      <div class="vote-status" id="voteStatus" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="fx" class="fx"></canvas>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
 </body>
-</html>
+</html> 

@@ -66,6 +66,19 @@
     ivalRange.value = (r.interval/1000).toFixed(1);
     chkAuto.checked = !!r.autoMark;
 
+    // Show play again voting status for host
+    if(isHost && r.gameEnded && r.winner) {
+      const voteInfo = document.getElementById('voteInfo') || document.createElement('div');
+      voteInfo.id = 'voteInfo';
+      voteInfo.className = 'muted';
+      voteInfo.style.marginTop = '12px';
+      voteInfo.textContent = `${r.playAgainVotes || 0} of ${r.totalPlayers || 0} players want to play again`;
+      
+      if(!document.getElementById('voteInfo')) {
+        hostOnly.appendChild(voteInfo);
+      }
+    }
+
     // If the game is running, redirect all players to game page with join params
     if(r.running){
       let hostKey = '';
