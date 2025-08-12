@@ -52,6 +52,33 @@
     if(marks.has(idx)) cell.classList.add('marked');
     
     cell.addEventListener('click', () => {
+      // Skip free space (center) - always marked
+      if (idx === 12) return;
+      
+      // Check if this number has been called
+      const num = number;
+      const isCalled = room?.called?.includes(num);
+      
+      // Only allow marking if the number has been called
+      if (!isCalled) {
+        // Visual feedback that this number hasn't been called yet
+        cell.classList.add('invalid-selection');
+        
+        // Show tooltip message
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        tooltip.textContent = 'Not called yet!';
+        cell.appendChild(tooltip);
+        
+        // Remove feedback after delay
+        setTimeout(() => {
+          cell.classList.remove('invalid-selection');
+          tooltip.remove();
+        }, 1500);
+        return;
+      }
+      
+      // Toggle marking for valid numbers
       const marked = cell.classList.toggle('marked');
       if(marked){
         marks.add(idx);

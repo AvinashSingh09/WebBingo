@@ -245,6 +245,55 @@
       background: rgba(91,124,255,.1);
     }
     
+    /* Invalid selection feedback */
+    .cell.invalid-selection {
+      animation: invalidShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+      border-color: rgba(255, 99, 71, 0.6);
+      box-shadow: 0 0 12px rgba(255, 99, 71, 0.4);
+    }
+    
+    @keyframes invalidShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+    
+    /* Tooltip for invalid selection */
+    .tooltip {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 99, 71, 0.9);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+      opacity: 0;
+      animation: fadeInOut 1.5s ease forwards;
+      pointer-events: none;
+    }
+    
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: rgba(255, 99, 71, 0.9) transparent transparent transparent;
+    }
+    
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, 10px); }
+      15% { opacity: 1; transform: translate(-50%, 0); }
+      85% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -10px); }
+    }
+    
     /* Fixed Previous Numbers Panel */
     .previous-numbers-fixed { 
       position: fixed; 
@@ -516,11 +565,11 @@
         </div>
         <div id="board" class="board"></div>
       </div>
-    </div>
+      </div>
 
     <!-- Fixed Previous Numbers Panel (Right Side) -->
     <div class="previous-numbers-fixed">
-      <div class="previous-title">Previous Numbers</div>
+          <div class="previous-title">Previous Numbers</div>
       <div id="previousNumbers" class="numbers-grid-fixed"></div>
     </div>
   </div>
