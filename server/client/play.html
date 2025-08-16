@@ -507,6 +507,7 @@
     @media (max-width: 480px) {
       .game-container {
         padding: clamp(8px, 3vw, 16px);
+        padding-bottom: calc(30vh + clamp(8px, 3vw, 16px));
       }
       
       .bingo-section-full {
@@ -532,23 +533,38 @@
       }
       
       .numbers-grid-fixed { 
-        grid-template-columns: repeat(6, 1fr); 
-        gap: clamp(3px, 0.8vw, 6px);
+        grid-template-columns: repeat(8, 1fr); 
+        gap: clamp(2px, 0.5vw, 4px);
+        max-height: calc(30vh - clamp(60px, 12vw, 80px));
+        overflow-y: auto;
       }
       
       .number-chip {
-        font-size: clamp(9px, 2.2vw, 12px);
-        min-height: clamp(24px, 6vw, 32px);
+        font-size: clamp(8px, 2vw, 10px);
+        min-height: clamp(20px, 5vw, 28px);
+        padding: clamp(2px, 0.5vw, 4px) clamp(3px, 0.8vw, 6px);
       }
       
       .previous-numbers-fixed {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: none;
+        max-height: 30vh;
+        border-radius: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px) 0 0;
         padding: clamp(8px, 2vw, 16px);
-        margin-bottom: clamp(16px, 3vw, 24px);
+        margin-bottom: 0;
+        z-index: 1000;
       }
       
       .previous-title {
-        font-size: clamp(12px, 2.2vw, 14px);
-        margin-bottom: clamp(8px, 1.5vw, 12px);
+        font-size: clamp(11px, 2vw, 13px);
+        margin-bottom: clamp(6px, 1.2vw, 10px);
+        padding-top: clamp(4px, 1vw, 8px);
       }
     }
     
