@@ -6,22 +6,41 @@
   <title>Bingo – Home</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .center{
-      min-height:100dvh;
-      display:grid;
-      place-items:center;
-      padding:clamp(16px, 4vw, 32px);
+    * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .center{
+      min-height:100vh;
+      min-height:100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:clamp(12px, 3vw, 32px);
+      box-sizing: border-box;
+      margin: 0;
+      width: 100%;
+      overflow-x: hidden;
+    }
     .home{
-      width:min(720px,95vw);
+      width:min(720px,92vw);
+      max-width: 100%;
       background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
       border:1px solid rgba(255,255,255,.06);
       border-radius:clamp(12px, 3vw, 24px);
       box-shadow:0 clamp(6px, 2vw, 16px) clamp(20px, 4vw, 40px) rgba(0,0,0,.25);
-      padding:clamp(20px, 5vw, 40px);
+      padding:clamp(16px, 4vw, 40px);
       animation:slideInScale 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       box-sizing: border-box;
+      margin: 0 auto;
     }
     @keyframes slideInScale{
       0%{opacity:0;transform:scale(0.8) translateY(50px)}
@@ -146,7 +165,19 @@
       flex-wrap: wrap;
     }
     
-    @media (max-width:600px){
+    @media (max-width: 768px) {
+      .center {
+        padding: clamp(8px, 2vw, 16px);
+        align-items: flex-start;
+        padding-top: clamp(20px, 8vh, 60px);
+      }
+      
+      .home {
+        width: min(720px, 94vw);
+        padding: clamp(16px, 4vw, 24px);
+        margin: 0;
+      }
+      
       .game-options{
         flex-direction:column;
         align-items:center;
@@ -163,6 +194,29 @@
       
       button {
         width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .center {
+        padding: clamp(6px, 2vw, 12px);
+        align-items: flex-start;
+        padding-top: clamp(16px, 6vh, 40px);
+      }
+      
+      .home {
+        width: min(720px, 96vw);
+        padding: clamp(12px, 3vw, 20px);
+        margin: 0;
+        border-radius: clamp(8px, 2vw, 16px);
+      }
+      
+      .home h1 {
+        font-size: clamp(20px, 5vw, 32px);
+      }
+      
+      .muted {
+        font-size: clamp(12px, 3vw, 14px);
       }
     }
   </style>
