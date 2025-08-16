@@ -152,56 +152,7 @@
       margin: 0 auto;
     }
     
-    /* Enhanced Header for 3x9 Grid */
-    .card-header { 
-      display: grid; 
-      grid-template-columns: repeat(9, 1fr); 
-      gap: clamp(18px, 4vw, 32px); 
-      margin-bottom: clamp(12px, 3vw, 24px); 
-      width: 100%;
-      max-width: 100%;
-      padding: 0 clamp(18px, 3.5vw, 28px);
-    }
-    
-    .bingo-letter { 
-      background: linear-gradient(135deg, #0f1220, #1a2332);
-      color: #9fb5ff; 
-      border: 1px solid rgba(255,255,255,.1); 
-      border-radius: clamp(8px, 2vw, 14px); 
-      padding: clamp(10px, 3vw, 18px) 0; 
-      text-align: center; 
-      font-weight: 800; 
-      font-size: clamp(14px, 3.5vw, 24px);
-      letter-spacing: clamp(1px, 0.3vw, 3px);
-      box-shadow: 0 clamp(2px, 1vw, 6px) clamp(6px, 2vw, 16px) rgba(0,0,0,.2);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      aspect-ratio: 1.2/1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .bingo-letter::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,.05), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.6s ease;
-    }
-    
-    .bingo-letter:hover {
-      transform: translateY(-2px);
-      color: #b8d0ff;
-      border-color: rgba(159, 181, 255, 0.3);
-      box-shadow: 0 6px 20px rgba(0,0,0,.3);
-    }
-    
-    .bingo-letter:hover::before {
-      transform: translateX(100%);
-    }
+
     
     /* Board layout for 3x9 grid */
     .board { 
@@ -551,11 +502,6 @@
         aspect-ratio: 2.2/1;
         padding: 0 clamp(12px, 3vw, 18px);
       }
-      
-      .card-header {
-        gap: clamp(12px, 3.5vw, 18px);
-        padding: 0 clamp(12px, 3vw, 18px);
-      }
     }
     
     @media (max-width: 480px) {
@@ -582,11 +528,6 @@
       .board {
         gap: clamp(8px, 2.5vw, 14px);
         aspect-ratio: 2.8/1;
-        padding: 0 clamp(8px, 2.5vw, 14px);
-      }
-      
-      .card-header {
-        gap: clamp(8px, 2.5vw, 14px);
         padding: 0 clamp(8px, 2.5vw, 14px);
       }
       
@@ -647,19 +588,8 @@
     <div class="game-layout">
       <!-- Bingo Card Section (Full Width) -->
       <div class="bingo-section-full">
-        <div class="card-header">
-          <div class="bingo-letter">1</div>
-          <div class="bingo-letter">2</div>
-          <div class="bingo-letter">3</div>
-          <div class="bingo-letter">4</div>
-          <div class="bingo-letter">5</div>
-          <div class="bingo-letter">6</div>
-          <div class="bingo-letter">7</div>
-          <div class="bingo-letter">8</div>
-          <div class="bingo-letter">9</div>
-        </div>
         <div id="board" class="board"></div>
-      </div>
+        </div>
       </div>
 
     <!-- Fixed Previous Films Panel (Right Side) -->
