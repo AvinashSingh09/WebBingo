@@ -76,7 +76,7 @@
       position: relative;
       border: clamp(2px, 0.5vw, 4px) solid rgba(255,255,255,.9);
       text-align: center;
-      padding: clamp(8px, 2vw, 16px);
+      padding: clamp(16px, 2vw, 16px);
       word-wrap: break-word;
       overflow-wrap: break-word;
       hyphens: auto;
@@ -156,11 +156,11 @@
     .card-header { 
       display: grid; 
       grid-template-columns: repeat(9, 1fr); 
-      gap: clamp(6px, 2vw, 16px); 
+      gap: clamp(12px, 3vw, 24px); 
       margin-bottom: clamp(12px, 3vw, 24px); 
       width: 100%;
       max-width: 100%;
-      padding: 0 clamp(6px, 1.5vw, 12px);
+      padding: 0 clamp(12px, 2.5vw, 20px);
     }
     
     .bingo-letter { 
@@ -207,10 +207,10 @@
     .board { 
       display: grid; 
       grid-template-columns: repeat(9, 1fr); 
-      gap: clamp(6px, 2vw, 16px); 
+      gap: clamp(12px, 3vw, 24px); 
       width: 100%;
       max-width: 100%;
-      padding: 0 clamp(6px, 1.5vw, 12px);
+      padding: 0 clamp(12px, 2.5vw, 20px);
       aspect-ratio: 2.5/1;
     }
     
@@ -230,7 +230,7 @@
       font-size: clamp(14px, 3.5vw, 24px);
       font-weight: 700;
       min-height: clamp(50px, 12vw, 90px);
-      padding: clamp(4px, 1vw, 8px);
+      padding: clamp(8px, 2vw, 12px);
     }
     
     .cell .num {
@@ -547,8 +547,9 @@
       }
       
       .board {
-        gap: clamp(4px, 1.5vw, 8px);
+        gap: clamp(8px, 2.5vw, 12px);
         aspect-ratio: 2.2/1;
+        padding: 0 clamp(8px, 2vw, 12px);
       }
     }
     
@@ -564,24 +565,24 @@
       .cell {
         min-height: clamp(40px, 10vw, 60px);
         aspect-ratio: 1/1;
-        padding: clamp(2px, 0.5vw, 4px);
+        padding: clamp(4px, 1vw, 6px);
       }
       
       .cell .num {
         font-size: clamp(7px, 2vw, 10px);
         line-height: 1.1;
-        padding: clamp(1px, 0.3vw, 3px);
+        padding: clamp(2px, 0.5vw, 4px);
       }
       
       .board {
-        gap: clamp(3px, 1vw, 6px);
+        gap: clamp(6px, 2vw, 10px);
         aspect-ratio: 2.8/1;
-        padding: 0 clamp(3px, 1vw, 6px);
+        padding: 0 clamp(6px, 2vw, 10px);
       }
       
       .card-header {
-        gap: clamp(3px, 1vw, 6px);
-        padding: 0 clamp(3px, 1vw, 6px);
+        gap: clamp(6px, 2vw, 10px);
+        padding: 0 clamp(6px, 2vw, 10px);
       }
       
       .numbers-grid-fixed { 
