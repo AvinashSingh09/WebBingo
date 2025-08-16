@@ -1,7 +1,7 @@
 (() => {
   const socket = io();
   let room = null;
-  let card = Array(27).fill(0);
+  let card = Array(27).fill(null);
   let marks = new Set();
   let playerName = '';
 
@@ -43,22 +43,31 @@
   roomCodeEl.textContent = roomId;
 
   // Board functions
-  function makeCell(idx, number){
+  function makeCell(idx, film){
     const cell = document.createElement('button');
     cell.className = 'cell';
     cell.dataset.idx = idx;
-    cell.innerHTML = `<span class="num">${number}</span><span class="mark"></span>`;
+    
+    // Handle empty cells vs film cells
+    if (film) {
+      cell.innerHTML = `<span class="num">${film}</span><span class="mark"></span>`;
+      cell.classList.add('has-film');
+    } else {
+      cell.innerHTML = `<span class="num"></span>`;
+      cell.classList.add('empty-cell');
+      cell.disabled = true; // Empty cells can't be clicked
+      return cell;
+    }
     
     if(marks.has(idx)) cell.classList.add('marked');
     
     cell.addEventListener('click', () => {
-      // Check if this number has been called
-      const num = number;
-      const isCalled = room?.called?.includes(num);
+      // Check if this film has been called
+      const isCalled = room?.called?.includes(film);
       
-      // Only allow marking if the number has been called
+      // Only allow marking if the film has been called
       if (!isCalled) {
-        // Visual feedback that this number hasn't been called yet
+        // Visual feedback that this film hasn't been called yet
         cell.classList.add('invalid-selection');
         
         // Show tooltip message
@@ -75,7 +84,7 @@
         return;
       }
       
-      // Toggle marking for valid numbers
+      // Toggle marking for valid films
       const marked = cell.classList.toggle('marked');
       if(marked){
         marks.add(idx);
@@ -94,15 +103,15 @@
     card.forEach((n, i) => boardEl.appendChild(makeCell(i, n)));
   }
 
-  function showCurrentNumber(number) {
+  function showCurrentFilm(film) {
     // Reset the animation
     currentNumberEl.classList.remove('active', 'new-number');
     currentNumberEl.style.animation = 'none';
     void currentNumberEl.offsetWidth; // Force reflow
     
-    currentNumberEl.textContent = number;
+    currentNumberEl.textContent = film;
     currentNumberEl.classList.add('active', 'new-number');
-    numberLabelEl.textContent = `Called: ${number}`;
+    numberLabelEl.textContent = `Called: ${film}`;
     
     // Add a color animation to the label (no transform to avoid conflicts)
     numberLabelEl.style.animation = 'none';
@@ -115,10 +124,10 @@
     }, 1000);
   }
 
-  function addPreviousNumber(number, isLatest = false) {
+  function addPreviousFilm(film, isLatest = false) {
     const chip = document.createElement('div');
     chip.className = isLatest ? 'number-chip latest' : 'number-chip';
-    chip.textContent = number;
+    chip.textContent = film;
     
     // Remove latest class from all other chips
     if (isLatest) {
@@ -127,7 +136,7 @@
       });
     }
     
-    // For real-time updates (new numbers), add to top
+    // For real-time updates (new films), add to top
     // For bulk updates (room state), add to end to maintain order
     if (isLatest && previousNumbersEl.children.length > 0) {
       previousNumbersEl.insertBefore(chip, previousNumbersEl.firstChild);
@@ -148,12 +157,12 @@
     }
   }
 
-  function updatePreviousNumbers(calledNumbers) {
+  function updatePreviousFilms(calledFilms) {
     previousNumbersEl.innerHTML = '';
-    // Show most recent numbers first - reverse the array so latest is index 0
-    const reversedNumbers = calledNumbers.slice().reverse();
-    reversedNumbers.forEach((num, index) => {
-      addPreviousNumber(num, index === 0); // Mark the first (latest) number
+    // Show most recent films first - reverse the array so latest is index 0
+    const reversedFilms = calledFilms.slice().reverse();
+    reversedFilms.forEach((film, index) => {
+      addPreviousFilm(film, index === 0); // Mark the first (latest) film
     });
   }
 
@@ -238,7 +247,7 @@
 
   socket.on('room_state', (r) => {
     room = r;
-    updatePreviousNumbers(r.called);
+    updatePreviousFilms(r.called);
     
     // Update vote status if game ended
     if(r.gameEnded && r.winner) {
@@ -259,13 +268,13 @@
     }
   });
 
-  socket.on('number_called', (number) => {
-    showCurrentNumber(number);
+  socket.on('film_called', (film) => {
+    showCurrentFilm(film);
     
-    // Add the new number to the top of the previous numbers list
+    // Add the new film to the top of the previous films list
     const chip = document.createElement('div');
     chip.className = 'number-chip latest';
-    chip.textContent = number;
+    chip.textContent = film;
     
     // Remove latest class from all other chips
     previousNumbersEl.querySelectorAll('.number-chip.latest').forEach(el => {

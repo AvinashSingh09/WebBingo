@@ -58,15 +58,15 @@
     }
     
     .number-display { 
-      width: clamp(100px, 20vw, 160px); 
-      height: clamp(100px, 20vw, 160px); 
-      border-radius: 50%; 
+      width: clamp(200px, 35vw, 320px); 
+      height: clamp(100px, 18vw, 160px); 
+      border-radius: clamp(12px, 3vw, 24px); 
       margin: 0 auto clamp(12px, 2vw, 20px);
       background: radial-gradient(circle at 35% 30%, #ffffff, #e7f0ff 45%, #b9d0ff 60%, #94a7ff 80%, #6a79ff 100%);
       display: flex; 
       align-items: center; 
       justify-content: center;
-      font-size: clamp(28px, 8vw, 56px); 
+      font-size: clamp(14px, 3vw, 24px); 
       font-weight: 800; 
       color: #0b0f1f;
       box-shadow: 0 clamp(6px, 2vw, 16px) clamp(12px, 4vw, 32px) rgba(0,0,0,.3);
@@ -75,6 +75,12 @@
       transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
       border: clamp(2px, 0.5vw, 4px) solid rgba(255,255,255,.9);
+      text-align: center;
+      padding: clamp(8px, 2vw, 16px);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      line-height: 1.2;
     }
     .number-display.active { 
       transform: scale(1) translateY(0); 
@@ -227,11 +233,40 @@
     }
     
     .cell .num {
-      font-size: clamp(14px, 3.5vw, 24px);
+      font-size: clamp(10px, 2.5vw, 16px);
       transition: all .2s ease;
       position: relative;
       z-index: 2;
-      line-height: 1;
+      line-height: 1.1;
+      text-align: center;
+      padding: clamp(2px, 0.5vw, 4px);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    
+    /* Empty cell styles */
+    .cell.empty-cell {
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,.03);
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+    
+    .cell.empty-cell:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    
+    /* Film cell styles */
+    .cell.has-film {
+      background: var(--cell);
+    }
+    
+    .cell.has-film:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 clamp(4px, 1.5vw, 8px) clamp(12px, 3vw, 20px) rgba(91,124,255,.15);
+      border-color: rgba(91,124,255,.2);
     }
     
     .cell .mark {
@@ -347,23 +382,28 @@
       background: rgba(91, 124, 255, 0.5);
     }
     .number-chip { 
-      aspect-ratio: 1; 
       background: var(--chip); 
       border: 1px solid rgba(255,255,255,.1);
       border-radius: clamp(4px, 1.5vw, 8px); 
       display: flex; 
       align-items: center; 
       justify-content: center;
-      font-size: clamp(10px, 2.5vw, 16px); 
+      font-size: clamp(8px, 2vw, 12px); 
       font-weight: 600; 
       color: #cfe0ff; 
-      min-height: clamp(28px, 7vw, 48px);
+      min-height: clamp(32px, 8vw, 56px);
+      padding: clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 12px);
       transform: scale(0.8) rotateY(90deg); 
       opacity: 0;
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative; 
       overflow: hidden;
-      line-height: 1;
+      line-height: 1.2;
+      text-align: center;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      margin-bottom: clamp(4px, 1vw, 8px);
     }
     .number-chip::before {
       content: ''; position: absolute; inset: 0;
@@ -546,10 +586,10 @@
       <div class="room-info">Room: <span id="roomCode">—</span></div>
     </div>
 
-    <!-- Current Number Display -->
+    <!-- Current Film Display -->
     <div class="current-number">
       <div class="number-display" id="currentNumber">—</div>
-      <div class="number-label" id="numberLabel">Waiting for next number...</div>
+      <div class="number-label" id="numberLabel">Waiting for next film...</div>
     </div>
 
     <!-- Game Layout -->
@@ -571,9 +611,9 @@
       </div>
       </div>
 
-    <!-- Fixed Previous Numbers Panel (Right Side) -->
+    <!-- Fixed Previous Films Panel (Right Side) -->
     <div class="previous-numbers-fixed">
-          <div class="previous-title">Previous Numbers</div>
+          <div class="previous-title">Previous Films</div>
       <div id="previousNumbers" class="numbers-grid-fixed"></div>
     </div>
   </div>

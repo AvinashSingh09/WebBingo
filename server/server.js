@@ -31,33 +31,78 @@ function strHash(s) {
   }
   return h >>> 0;
 }
+
+// Film database - you can modify these film names as needed
+const FILM_DATABASE = [
+  // Action Movies
+  "The Dark Knight", "Mad Max: Fury Road", "John Wick", "Die Hard", "Terminator 2",
+  "The Matrix", "Gladiator", "Heat", "Casino Royale", "Mission Impossible",
+  
+  // Drama Movies
+  "The Godfather", "Shawshank Redemption", "Schindler's List", "Forrest Gump", "Goodfellas",
+  "Pulp Fiction", "The Departed", "There Will Be Blood", "No Country for Old Men", "Taxi Driver",
+  
+  // Comedy Movies
+  "The Grand Budapest Hotel", "Superbad", "Anchorman", "The Hangover", "Borat",
+  "Tropic Thunder", "Wedding Crashers", "Step Brothers", "Zoolander", "Dumb and Dumber",
+  
+  // Horror Movies
+  "The Exorcist", "Halloween", "A Nightmare on Elm Street", "The Shining", "Psycho",
+  "Scream", "Get Out", "Hereditary", "The Conjuring", "It Follows",
+  
+  // Sci-Fi Movies
+  "Blade Runner", "Alien", "Star Wars", "Interstellar", "Inception",
+  "2001: A Space Odyssey", "The Thing", "Arrival", "Ex Machina", "Minority Report",
+  
+  // Romance Movies
+  "Casablanca", "The Notebook", "Titanic", "When Harry Met Sally", "Pretty Woman",
+  "La La Land", "Eternal Sunshine", "Before Sunset", "Ghost", "Dirty Dancing",
+  
+  // Thriller Movies
+  "Seven", "Silence of the Lambs", "Zodiac", "Gone Girl", "Shutter Island",
+  "The Prestige", "Memento", "North by Northwest", "Vertigo", "Rear Window",
+  
+  // Animation Movies
+  "Toy Story", "The Lion King", "Finding Nemo", "Spirited Away", "Up",
+  "WALL-E", "Inside Out", "Coco", "Frozen", "Moana",
+  
+  // War Movies
+  "Saving Private Ryan", "Apocalypse Now", "Full Metal Jacket", "Platoon", "Black Hawk Down",
+  "Hacksaw Ridge", "1917", "Dunkirk", "We Were Soldiers", "Born on the Fourth of July"
+];
+
 function generateCard(seed, playerId) {
   const rng = mulberry32((seed ^ strHash(playerId)) >>> 0);
-  // For 3x9 grid, we'll use 9 columns with different number ranges
-  const ranges = [
-    [1,10], [11,20], [21,30], [31,40], [41,50], 
-    [51,60], [61,70], [71,80], [81,90]
-  ];
-  const cols = ranges.map((r,ci) => {
-    const pool=[]; for (let n=r[0]; n<=r[1]; n++) pool.push(n);
-    const picks = 3; // Each column has exactly 3 numbers
-    const out=[];
-    for (let i=0;i<picks;i++){ 
-      const k = Math.floor(rng()*pool.length); 
-      out.push(pool.splice(k,1)[0]); 
-    }
-    out.sort((a,b)=>a-b); 
-    return out;
-  });
+  
+  // Create a shuffled copy of the film database for this card
+  const availableFilms = [...FILM_DATABASE];
+  for (let i = availableFilms.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [availableFilms[i], availableFilms[j]] = [availableFilms[j], availableFilms[i]];
+  }
   
   // Create 3x9 grid (27 cells total)
-  const arr = Array(27).fill(0);
-  let idx=0;
-  for (let r=0;r<3;r++){
-    for (let c=0;c<9;c++){
-      arr[idx++] = cols[c].shift();
+  const arr = Array(27).fill(null); // Use null for empty cells
+  
+  // For each row (3 rows total), fill only 5 random positions with films
+  let filmIndex = 0;
+  for (let row = 0; row < 3; row++) {
+    // Generate 5 random positions in this row (0-8)
+    const positions = [];
+    while (positions.length < 5) {
+      const pos = Math.floor(rng() * 9);
+      if (!positions.includes(pos)) {
+        positions.push(pos);
+      }
     }
+    
+    // Fill those positions with films
+    positions.forEach(pos => {
+      const cellIndex = row * 9 + pos;
+      arr[cellIndex] = availableFilms[filmIndex++];
+    });
   }
+  
   return arr;
 }
 function getLines(){
@@ -126,12 +171,23 @@ function emitState(room){
     totalPlayers: room.players.size
   });
 }
-function nextBagNumber(room){
+function nextBagFilm(room){
   if (room.winner) return null;
   const called = new Set(room.called);
-  const bag=[]; for (let i=1;i<=90;i++) if(!called.has(i)) bag.push(i);
+  
+  // Get all films that appear on any player's card and haven't been called yet
+  const availableFilms = new Set();
+  for (const [id, player] of room.players) {
+    for (const film of player.card) {
+      if (film && !called.has(film)) {
+        availableFilms.add(film);
+      }
+    }
+  }
+  
+  const bag = Array.from(availableFilms);
   if (!bag.length) return null;
-  return bag[Math.floor(Math.random()*bag.length)];
+  return bag[Math.floor(Math.random() * bag.length)];
 }
 function clearTimer(room){
   if (room.timer){ clearInterval(room.timer); room.timer=null; }
@@ -176,18 +232,17 @@ function checkLinesAndFull(room, playerId, announce=false){
 */
 function callNext(room){
   if (room.winner) return false;
-  const n = nextBagNumber(room);
-  if (n == null){ io.to(room.id).emit('no_more'); return false; }
+  const film = nextBagFilm(room);
+  if (film == null){ io.to(room.id).emit('no_more'); return false; }
 
-  room.called.push(n);
-  io.to(room.id).emit('number_called', n);
+  room.called.push(film);
+  io.to(room.id).emit('film_called', film);
 
   // Server-side automark so line checks are authoritative
   if (room.autoMark){
     for (const [pid,p] of room.players){
-      for (let i=0;i<25;i++){
-        if (i===12) continue;
-        if (p.card[i] === n) p.marks.add(i);
+      for (let i=0;i<27;i++){
+        if (p.card[i] === film) p.marks.add(i);
       }
     }
   }
@@ -306,12 +361,12 @@ io.on('connection', (socket) => {
     if (!room.winner) callNext(room);
   });
 
-  // Player marks (manual). Only valid for already-called numbers.
+  // Player marks (manual). Only valid for already-called films.
   socket.on('mark_cell', (idx)=>{
     const room = ROOMS.get(currentRoom); if (!room) return;
     const p = room.players.get(socket.id); if (!p) return;
-    const num = p.card[idx];
-    if (room.called.includes(num)) p.marks.add(idx);
+    const film = p.card[idx];
+    if (film && room.called.includes(film)) p.marks.add(idx);
     const { newRowOrCol } = checkLinesAndFull(room, socket.id, false);
     if (newRowOrCol && !room.winner){
       room.winner = { id: socket.id, name: p.name, lineType: 'line', lineIndex: -1 };
@@ -324,7 +379,7 @@ io.on('connection', (socket) => {
   socket.on('unmark_cell', (idx)=>{
     const room = ROOMS.get(currentRoom); if (!room) return;
     const p = room.players.get(socket.id); if (!p) return;
-    if (idx!==12) p.marks.delete(idx);
+    p.marks.delete(idx);
     checkLinesAndFull(room, socket.id, false);
     emitState(room);
   });
