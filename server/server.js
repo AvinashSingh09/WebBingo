@@ -33,27 +33,50 @@ function strHash(s) {
 }
 function generateCard(seed, playerId) {
   const rng = mulberry32((seed ^ strHash(playerId)) >>> 0);
-  const ranges = [[1,15],[16,30],[31,45],[46,60],[61,75]];
+  // For 3x9 grid, we'll use 9 columns with different number ranges
+  const ranges = [
+    [1,10], [11,20], [21,30], [31,40], [41,50], 
+    [51,60], [61,70], [71,80], [81,90]
+  ];
   const cols = ranges.map((r,ci) => {
     const pool=[]; for (let n=r[0]; n<=r[1]; n++) pool.push(n);
-    const picks = (ci===2?4:5), out=[];
-    for (let i=0;i<picks;i++){ const k = Math.floor(rng()*pool.length); out.push(pool.splice(k,1)[0]); }
-    out.sort((a,b)=>a-b); return out;
+    const picks = 3; // Each column has exactly 3 numbers
+    const out=[];
+    for (let i=0;i<picks;i++){ 
+      const k = Math.floor(rng()*pool.length); 
+      out.push(pool.splice(k,1)[0]); 
+    }
+    out.sort((a,b)=>a-b); 
+    return out;
   });
-  const arr = Array(25).fill(0);
+  
+  // Create 3x9 grid (27 cells total)
+  const arr = Array(27).fill(0);
   let idx=0;
-  for (let r=0;r<5;r++){
-    for (let c=0;c<5;c++){
-      arr[idx++] = (r===2 && c===2) ? 0 : cols[c].shift();
+  for (let r=0;r<3;r++){
+    for (let c=0;c<9;c++){
+      arr[idx++] = cols[c].shift();
     }
   }
   return arr;
 }
 function getLines(){
   const L=[];
-  for (let r=0;r<5;r++) L.push([r*5, r*5+1, r*5+2, r*5+3, r*5+4]);   // 0..4 rows
-  for (let c=0;c<5;c++) L.push([c, c+5, c+10, c+15, c+20]);         // 5..9 cols
-  // Removed diagonal lines - only horizontal and vertical lines allowed
+  // 3 horizontal rows (each row has 9 cells)
+  for (let r=0;r<3;r++) {
+    const row = [];
+    for (let c=0;c<9;c++) {
+      row.push(r*9 + c);
+    }
+    L.push(row);
+  }
+  
+  // 9 vertical columns (each column has 3 cells)
+  for (let c=0;c<9;c++) {
+    L.push([c, c+9, c+18]);
+  }
+  
+  // No diagonal lines for 3x9 grid
   return L;
 }
 const ALL_LINES = getLines();
@@ -106,7 +129,7 @@ function emitState(room){
 function nextBagNumber(room){
   if (room.winner) return null;
   const called = new Set(room.called);
-  const bag=[]; for (let i=1;i<=75;i++) if(!called.has(i)) bag.push(i);
+  const bag=[]; for (let i=1;i<=90;i++) if(!called.has(i)) bag.push(i);
   if (!bag.length) return null;
   return bag[Math.floor(Math.random()*bag.length)];
 }
@@ -130,7 +153,7 @@ function checkLinesAndFull(room, playerId, announce=false){
   let newRowOrCol = false;
 
   ALL_LINES.forEach((line, i) => {
-    const ok = line.every(idx => idx===12 || p.marks.has(idx));
+    const ok = line.every(idx => p.marks.has(idx));
     if (ok && !p.lines.has(String(i))){
       p.lines.add(String(i));
       newRowOrCol = true; // Any line wins now (only rows and cols exist)
@@ -140,7 +163,7 @@ function checkLinesAndFull(room, playerId, announce=false){
 
   // full house (doesn't stop the game here; you can choose to)
   let all=true;
-  for (let i=0;i<25;i++){ if(i===12) continue; if(!p.marks.has(i)){ all=false; break; } }
+  for (let i=0;i<27;i++){ if(!p.marks.has(i)){ all=false; break; } }
   if (all && !p.fullHouse){
     p.fullHouse = true;
     if (announce) io.to(room.id).emit('full_house', { playerId });
@@ -206,7 +229,7 @@ io.on('connection', (socket) => {
     currentRoom = id;
 
     const card = generateCard(seed, socket.id);
-    room.players.set(socket.id, { name:name||'Host', card, marks:new Set([12]), lines:new Set(), fullHouse:false, playAgainVote:false });
+    room.players.set(socket.id, { name:name||'Host', card, marks:new Set(), lines:new Set(), fullHouse:false, playAgainVote:false });
 
     socket.emit('room_created', { id, seed, hostKey });
     socket.emit('joined', { id, seed, card }); // host gets their card
@@ -220,7 +243,7 @@ io.on('connection', (socket) => {
     socket.join(roomId); currentRoom = roomId;
 
     const card = generateCard(room.seed, socket.id);
-    room.players.set(socket.id, { name:name||'Player', card, marks:new Set([12]), lines:new Set(), fullHouse:false, playAgainVote:false });
+    room.players.set(socket.id, { name:name||'Player', card, marks:new Set(), lines:new Set(), fullHouse:false, playAgainVote:false });
     // If this joiner presents the valid hostKey, reclaim host role
     if (hostKey && hostKey === room.hostKey){ room.hostId = socket.id; }
     else if (room.hostId == null) { room.hostId = socket.id; }
@@ -287,11 +310,8 @@ io.on('connection', (socket) => {
   socket.on('mark_cell', (idx)=>{
     const room = ROOMS.get(currentRoom); if (!room) return;
     const p = room.players.get(socket.id); if (!p) return;
-    if (idx===12) p.marks.add(12);
-    else {
-      const num = p.card[idx];
-      if (room.called.includes(num)) p.marks.add(idx);
-    }
+    const num = p.card[idx];
+    if (room.called.includes(num)) p.marks.add(idx);
     const { newRowOrCol } = checkLinesAndFull(room, socket.id, false);
     if (newRowOrCol && !room.winner){
       room.winner = { id: socket.id, name: p.name, lineType: 'line', lineIndex: -1 };

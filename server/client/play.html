@@ -146,10 +146,10 @@
       margin: 0 auto;
     }
     
-    /* Enhanced BINGO Header */
+    /* Enhanced Header for 3x9 Grid */
     .card-header { 
       display: grid; 
-      grid-template-columns: repeat(5, 1fr); 
+      grid-template-columns: repeat(9, 1fr); 
       gap: clamp(4px, 1.5vw, 12px); 
       margin-bottom: clamp(12px, 3vw, 24px); 
       width: 100%;
@@ -197,15 +197,15 @@
       transform: translateX(100%);
     }
     
-    /* Board alignment with BINGO letters */
+    /* Board layout for 3x9 grid */
     .board { 
       display: grid; 
-      grid-template-columns: repeat(5, 1fr); 
+      grid-template-columns: repeat(9, 1fr); 
       gap: clamp(4px, 1.5vw, 12px); 
       width: 100%;
       max-width: 100%;
       padding: 0 clamp(4px, 1vw, 8px);
-      aspect-ratio: 1;
+      aspect-ratio: 3/1;
     }
     
     .cell {
@@ -557,11 +557,15 @@
       <!-- Bingo Card Section (Full Width) -->
       <div class="bingo-section-full">
         <div class="card-header">
-          <div class="bingo-letter">B</div>
-          <div class="bingo-letter">I</div>
-          <div class="bingo-letter">N</div>
-          <div class="bingo-letter">G</div>
-          <div class="bingo-letter">O</div>
+          <div class="bingo-letter">1</div>
+          <div class="bingo-letter">2</div>
+          <div class="bingo-letter">3</div>
+          <div class="bingo-letter">4</div>
+          <div class="bingo-letter">5</div>
+          <div class="bingo-letter">6</div>
+          <div class="bingo-letter">7</div>
+          <div class="bingo-letter">8</div>
+          <div class="bingo-letter">9</div>
         </div>
         <div id="board" class="board"></div>
       </div>

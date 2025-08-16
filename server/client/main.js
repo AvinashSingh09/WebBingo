@@ -1,8 +1,8 @@
 (() => {
   const socket = io();
   let room = null;
-  let card = Array(25).fill(0);
-  let marks = new Set([12]);
+  let card = Array(27).fill(0);
+  let marks = new Set();
   let playerName = '';
 
   // DOM elements
@@ -47,14 +47,11 @@
     const cell = document.createElement('button');
     cell.className = 'cell';
     cell.dataset.idx = idx;
-    cell.innerHTML = `<span class="num">${number > 0 ? number : '★'}</span><span class="mark"></span>`;
+    cell.innerHTML = `<span class="num">${number}</span><span class="mark"></span>`;
     
     if(marks.has(idx)) cell.classList.add('marked');
     
     cell.addEventListener('click', () => {
-      // Skip free space (center) - always marked
-      if (idx === 12) return;
-      
       // Check if this number has been called
       const num = number;
       const isCalled = room?.called?.includes(num);
@@ -223,14 +220,14 @@
   socket.on('joined', ({id, card: serverCard}) => {
     roomCodeEl.textContent = id;
     card = serverCard;
-    marks = new Set([12]);
+    marks = new Set();
     renderBoard();
     numberLabelEl.textContent = 'Waiting for game to start...';
   });
 
   socket.on('new_card', ({card: serverCard}) => {
     card = serverCard;
-    marks = new Set([12]);
+    marks = new Set();
     renderBoard();
     previousNumbersEl.innerHTML = '';
     hideWinner();
