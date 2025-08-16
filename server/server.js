@@ -205,9 +205,9 @@ function startTimer(room){
    Returns { newRowOrCol: boolean } to let caller stop the game on first row/col.
 */
 function checkLinesAndFull(room, playerId, announce=false){
-  const p = room.players.get(playerId); if (!p) return { fullHouse:false };
+  const p = room.players.get(playerId); if (!p) return { newFullHouse:false };
 
-  // Only check for full house - player must mark ALL their films to win
+  // Only check for full house - player must mark all films on their card to win
   let allFilmsMarked = true;
   for (let i = 0; i < 27; i++) {
     // Only check cells that have films (not empty cells)
@@ -220,10 +220,10 @@ function checkLinesAndFull(room, playerId, announce=false){
   if (allFilmsMarked && !p.fullHouse) {
     p.fullHouse = true;
     if (announce) io.to(room.id).emit('full_house', { playerId });
-    return { fullHouse: true };
+    return { newFullHouse: true };
   }
   
-  return { fullHouse: false };
+  return { newFullHouse: false };
 }
 
 /* ---- when a number is called ----
@@ -237,7 +237,7 @@ function callNext(room){
   room.called.push(film);
   io.to(room.id).emit('film_called', film);
 
-  // Server-side automark so line checks are authoritative
+  // Server-side automark so win checks are authoritative
   if (room.autoMark){
     for (const [pid,p] of room.players){
       for (let i=0;i<27;i++){
@@ -246,12 +246,12 @@ function callNext(room){
     }
   }
 
-  // After marking, check for full house winners
+  // After marking, check for new winners (full house only)
   for (const [pid,p] of room.players){
-    const { fullHouse } = checkLinesAndFull(room, pid, false);
-    if (fullHouse && !room.winner){
-      // Player won with full house (all films marked)
-      room.winner = { id: pid, name: p.name, lineType: 'fullHouse', lineIndex: -1 };
+    const { newFullHouse } = checkLinesAndFull(room, pid, false);
+    if (newFullHouse && !room.winner){
+      // Player won by marking all films
+      room.winner = { id: pid, name: p.name, lineType: 'fullhouse', lineIndex: -1 };
       room.running = false;
       room.gameEnded = true;
       clearTimer(room);
@@ -283,7 +283,7 @@ io.on('connection', (socket) => {
     currentRoom = id;
 
     const card = generateCard(seed, socket.id);
-    room.players.set(socket.id, { name:name||'Host', card, marks:new Set(), fullHouse:false, playAgainVote:false });
+    room.players.set(socket.id, { name:name||'Host', card, marks:new Set(), lines:new Set(), fullHouse:false, playAgainVote:false });
 
     socket.emit('room_created', { id, seed, hostKey });
     socket.emit('joined', { id, seed, card }); // host gets their card
@@ -297,7 +297,7 @@ io.on('connection', (socket) => {
     socket.join(roomId); currentRoom = roomId;
 
     const card = generateCard(room.seed, socket.id);
-    room.players.set(socket.id, { name:name||'Player', card, marks:new Set(), fullHouse:false, playAgainVote:false });
+    room.players.set(socket.id, { name:name||'Player', card, marks:new Set(), lines:new Set(), fullHouse:false, playAgainVote:false });
     // If this joiner presents the valid hostKey, reclaim host role
     if (hostKey && hostKey === room.hostKey){ room.hostId = socket.id; }
     else if (room.hostId == null) { room.hostId = socket.id; }
@@ -366,9 +366,9 @@ io.on('connection', (socket) => {
     const p = room.players.get(socket.id); if (!p) return;
     const film = p.card[idx];
     if (film && room.called.includes(film)) p.marks.add(idx);
-    const { fullHouse } = checkLinesAndFull(room, socket.id, false);
-    if (fullHouse && !room.winner){
-      room.winner = { id: socket.id, name: p.name, lineType: 'fullHouse', lineIndex: -1 };
+    const { newFullHouse } = checkLinesAndFull(room, socket.id, false);
+    if (newFullHouse && !room.winner){
+      room.winner = { id: socket.id, name: p.name, lineType: 'fullhouse', lineIndex: -1 };
       room.running = false; room.gameEnded = true; clearTimer(room);
       io.to(room.id).emit('game_winner', { playerId: socket.id, name: p.name });
     }
@@ -385,10 +385,10 @@ io.on('connection', (socket) => {
 
   socket.on('claim_full_house', ()=>{
     const room = ROOMS.get(currentRoom); if (!room) return;
-    const { fullHouse } = checkLinesAndFull(room, socket.id, true);
-    if (fullHouse && !room.winner){
+    const { newFullHouse } = checkLinesAndFull(room, socket.id, true);
+    if (newFullHouse && !room.winner){
       const p = room.players.get(socket.id);
-      room.winner = { id: socket.id, name: p.name, lineType: 'fullHouse', lineIndex: -1 };
+      room.winner = { id: socket.id, name: p.name, lineType: 'fullhouse', lineIndex: -1 };
       room.running = false; room.gameEnded = true; clearTimer(room);
       io.to(room.id).emit('game_winner', { playerId: socket.id, name: p.name });
     }
@@ -422,7 +422,7 @@ io.on('connection', (socket) => {
           for (const [pid,p] of room.players.entries()){
             const newCard = generateCard(room.seed, pid);
             p.card = newCard;
-            p.marks = new Set(); p.fullHouse = false; p.playAgainVote = false;
+            p.marks = new Set([12]); p.lines = new Set(); p.fullHouse = false; p.playAgainVote = false;
             io.to(pid).emit('new_card', { card: newCard });
           }
           
