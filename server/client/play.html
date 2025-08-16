@@ -148,7 +148,7 @@
       flex-direction: column; 
       align-items: center; 
       width: 100%; 
-      max-width: min(600px, 90vw);
+      max-width: min(900px, 95vw);
       margin: 0 auto;
     }
     
@@ -156,28 +156,28 @@
     .card-header { 
       display: grid; 
       grid-template-columns: repeat(9, 1fr); 
-      gap: clamp(4px, 1.5vw, 12px); 
+      gap: clamp(6px, 2vw, 16px); 
       margin-bottom: clamp(12px, 3vw, 24px); 
       width: 100%;
       max-width: 100%;
-      padding: 0 clamp(4px, 1vw, 8px);
+      padding: 0 clamp(6px, 1.5vw, 12px);
     }
     
     .bingo-letter { 
       background: linear-gradient(135deg, #0f1220, #1a2332);
       color: #9fb5ff; 
       border: 1px solid rgba(255,255,255,.1); 
-      border-radius: clamp(6px, 2vw, 12px); 
-      padding: clamp(8px, 2.5vw, 16px) 0; 
+      border-radius: clamp(8px, 2vw, 14px); 
+      padding: clamp(10px, 3vw, 18px) 0; 
       text-align: center; 
       font-weight: 800; 
-      font-size: clamp(16px, 4vw, 28px);
+      font-size: clamp(14px, 3.5vw, 24px);
       letter-spacing: clamp(1px, 0.3vw, 3px);
       box-shadow: 0 clamp(2px, 1vw, 6px) clamp(6px, 2vw, 16px) rgba(0,0,0,.2);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
-      aspect-ratio: 1;
+      aspect-ratio: 1.2/1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -207,19 +207,19 @@
     .board { 
       display: grid; 
       grid-template-columns: repeat(9, 1fr); 
-      gap: clamp(4px, 1.5vw, 12px); 
+      gap: clamp(6px, 2vw, 16px); 
       width: 100%;
       max-width: 100%;
-      padding: 0 clamp(4px, 1vw, 8px);
-      aspect-ratio: 3/1;
+      padding: 0 clamp(6px, 1.5vw, 12px);
+      aspect-ratio: 2.5/1;
     }
     
     .cell {
       position: relative;
       background: var(--cell);
       border: 1px solid rgba(255,255,255,.06);
-      border-radius: clamp(6px, 2vw, 12px);
-      aspect-ratio: 1;
+      border-radius: clamp(8px, 2vw, 14px);
+      aspect-ratio: 1.2/1;
       display: grid;
       place-items: center;
       cursor: pointer;
@@ -229,20 +229,26 @@
       overflow: hidden;
       font-size: clamp(14px, 3.5vw, 24px);
       font-weight: 700;
-      min-height: clamp(40px, 10vw, 80px);
+      min-height: clamp(50px, 12vw, 90px);
+      padding: clamp(4px, 1vw, 8px);
     }
     
     .cell .num {
-      font-size: clamp(10px, 2.5vw, 16px);
+      font-size: clamp(9px, 2vw, 14px);
       transition: all .2s ease;
       position: relative;
       z-index: 2;
-      line-height: 1.1;
+      line-height: 1.2;
       text-align: center;
-      padding: clamp(2px, 0.5vw, 4px);
+      padding: clamp(3px, 0.8vw, 6px);
       word-wrap: break-word;
       overflow-wrap: break-word;
       hyphens: auto;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
     }
     
     /* Empty cell styles */
@@ -530,13 +536,52 @@
       }
       
       .cell .num {
-        font-size: clamp(12px, 3vw, 18px);
+        font-size: clamp(8px, 2.5vw, 12px);
+        line-height: 1.1;
+        padding: clamp(2px, 0.5vw, 4px);
+      }
+      
+      .cell {
+        min-height: clamp(45px, 11vw, 70px);
+        aspect-ratio: 1.1/1;
+      }
+      
+      .board {
+        gap: clamp(4px, 1.5vw, 8px);
+        aspect-ratio: 2.2/1;
       }
     }
     
     @media (max-width: 480px) {
       .game-container {
         padding: clamp(8px, 3vw, 16px);
+      }
+      
+      .bingo-section-full {
+        max-width: 98vw;
+      }
+      
+      .cell {
+        min-height: clamp(40px, 10vw, 60px);
+        aspect-ratio: 1/1;
+        padding: clamp(2px, 0.5vw, 4px);
+      }
+      
+      .cell .num {
+        font-size: clamp(7px, 2vw, 10px);
+        line-height: 1.1;
+        padding: clamp(1px, 0.3vw, 3px);
+      }
+      
+      .board {
+        gap: clamp(3px, 1vw, 6px);
+        aspect-ratio: 2.8/1;
+        padding: 0 clamp(3px, 1vw, 6px);
+      }
+      
+      .card-header {
+        gap: clamp(3px, 1vw, 6px);
+        padding: 0 clamp(3px, 1vw, 6px);
       }
       
       .numbers-grid-fixed { 
